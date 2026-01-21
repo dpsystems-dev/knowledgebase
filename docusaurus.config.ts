@@ -11,13 +11,10 @@ const config: Config = {
     v4: true,
   },
 
-  // GitHub Pages deployment config
-  url: 'https://dpsystems-dev.github.io',
-  baseUrl: '/knowledgebase/',
-  organizationName: 'dpsystems-dev',
-  projectName: 'knowledgebase',
-  deploymentBranch: 'gh-pages',
-  trailingSlash: false,
+  // Cloudflare Pages deployment config
+  // TODO: Update this URL after creating Cloudflare Pages project
+  url: 'https://knowledgebase.pages.dev',
+  baseUrl: '/',
 
   onBrokenLinks: 'throw',
 
