@@ -17,6 +17,11 @@ const config: Config = {
   },
   themes: ['@docusaurus/theme-mermaid'],
 
+  // Client modules for custom behavior
+  clientModules: [
+    './src/clientModules/scrollAfterLayoutStable.js',
+  ],
+
   // GitHub Pages deployment config
   url: 'https://dpsystems-dev.github.io',
   baseUrl: '/knowledgebase/',
