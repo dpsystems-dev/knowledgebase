@@ -17,10 +17,13 @@ const config: Config = {
   },
   themes: ['@docusaurus/theme-mermaid'],
 
-  // Cloudflare Pages deployment config
-  // TODO: Update this URL after creating Cloudflare Pages project
-  url: 'https://knowledgebase.pages.dev',
-  baseUrl: '/',
+  // GitHub Pages deployment config
+  url: 'https://dpsystems-dev.github.io',
+  baseUrl: '/knowledgebase/',
+  organizationName: 'dpsystems-dev',
+  projectName: 'knowledgebase',
+  deploymentBranch: 'gh-pages',
+  trailingSlash: false,
 
   onBrokenLinks: 'throw',
 
