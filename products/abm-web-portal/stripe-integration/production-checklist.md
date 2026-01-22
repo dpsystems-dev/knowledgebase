@@ -18,13 +18,13 @@ The Stripe integration has been reviewed and is **production-ready**. No code ch
 
 Products are created inline with each checkout session using `price_data.product_data`. No hardcoded product IDs exist that would need migration.
 
-**Location:** `server/payments/stripeService.js:49-58`
+**Location:** `server/payments/stripeService.js:129-139`
 
 ### Customers: Not Stored in Stripe
 
 Customer information is tracked only in the local `StripePayments` database table. No Stripe Customer objects exist that would need migration.
 
-**Location:** `server/payments/paymentsController.js:217-228`
+**Location:** `server/payments/paymentsController.js:226-235`
 
 ---
 
@@ -39,24 +39,22 @@ Customer information is tracked only in the local `StripePayments` database tabl
 
 ### Server Configuration
 
-Update `server/serverConfig.json`:
+Configure Stripe via the Admin Dashboard at **App Configuration > STRIPE** tab:
 
-```json
-"stripe": {
-    "enabled": true,
-    "secretKey": "sk_live_YOUR_LIVE_SECRET_KEY",
-    "webhookSecret": "whsec_YOUR_LIVE_WEBHOOK_SECRET",
-    "baseUrl": "https://your-production-domain.com",
-    "logFolderPath": "C:\\logs\\stripe"
-}
-```
+| Setting | Value |
+|---------|-------|
+| STRIPE Enabled | ON |
+| Secret Key | `sk_live_YOUR_LIVE_SECRET_KEY` |
+| Webhook Secret | `whsec_YOUR_LIVE_WEBHOOK_SECRET` |
+| Base URL | `https://your-production-domain.com` |
+| Log Folder Path | `C:\logs\stripe` (optional) |
 
-- [ ] Update `secretKey` with live key
-- [ ] Update `webhookSecret` with live webhook secret
-- [ ] Verify `baseUrl` is correct for production
-- [ ] Set `enabled` to `true`
-- [ ] Configure `logFolderPath` for production logging (optional)
-- [ ] Restart server
+- [ ] Update **Secret Key** with live key
+- [ ] Update **Webhook Secret** with live webhook secret
+- [ ] Verify **Base URL** is correct for production
+- [ ] Toggle **STRIPE Enabled** to ON
+- [ ] Configure **Log Folder Path** for production logging (optional)
+- [ ] Click **Save**
 
 ### Stripe Account Verification
 
@@ -153,16 +151,25 @@ Verify your Stripe live account supports all currencies your customers use.
 ## Payment Flow Reference
 
 ```mermaid
-flowchart TD
-    A[1. User initiates payment] --> B[2. Server creates local payment record]
-    B --> C[Status: 'created']
-    C --> D[3. Server creates Stripe Checkout Session]
-    D --> E[4. Payment record updated]
-    E --> F[Status: 'pending']
-    F --> G[5. User redirected to Stripe Checkout]
-    G --> H[6. User completes/cancels payment]
-    H --> I[7. Stripe sends webhook OR user returns to result page]
-    I --> J[8. Status updated to 'completed'/'cancelled'/'expired']
+sequenceDiagram
+    participant User
+    participant Server
+    participant Stripe
+    participant DB as Database
+
+    User->>Server: 1. Initiate payment
+    Server->>DB: 2. Create payment record (status: 'created')
+    Server->>Stripe: 3. Create Checkout Session
+    Stripe-->>Server: Session URL
+    Server->>DB: 4. Update record (status: 'pending')
+    Server-->>User: 5. Redirect to Stripe Checkout
+    User->>Stripe: 6. Complete/cancel payment
+    alt Webhook
+        Stripe->>Server: 7. Send webhook event
+    else User returns
+        User->>Server: 7. Return to result page
+    end
+    Server->>DB: 8. Update status ('completed'/'cancelled'/'expired')
 ```
 
 ---

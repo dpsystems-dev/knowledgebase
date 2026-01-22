@@ -17,8 +17,8 @@ This guide explains how to configure Stripe payments for the ABM Service Web Por
 3. [Configuration Reference](#configuration-reference)
 4. [Part 1: Getting the Secret Key](#part-1-getting-the-secret-key)
 5. [Part 2: Creating a Webhook Endpoint](#part-2-creating-a-webhook-endpoint)
-6. [Part 3: Locating the Configuration File](#part-3-locating-the-configuration-file)
-7. [Part 4: Updating the Server Configuration](#part-4-updating-the-server-configuration)
+6. [Part 3: Accessing the Configuration Page](#part-3-accessing-the-configuration-page)
+7. [Part 4: Configuring Stripe Settings](#part-4-configuring-stripe-settings)
 8. [Optional: Enable Automatic Email Receipts](#optional-enable-automatic-email-receipts)
 9. [Live Mode Setup](#live-mode-setup)
 10. [Testing Your Configuration](#testing-your-configuration)
@@ -51,27 +51,17 @@ Before you begin, ensure you have:
 
 ## Configuration Reference
 
-The Stripe configuration is stored in the server's `serverConfig.json` file under the `stripe` section:
-
-```json
-"stripe": {
-    "enabled": false,
-    "secretKey": "sk_test_REPLACE_WITH_YOUR_SECRET_KEY",
-    "webhookSecret": "whsec_REPLACE_WITH_YOUR_WEBHOOK_SECRET",
-    "baseUrl": "https://your-domain.com",
-    "logFolderPath": ""
-}
-```
+Stripe configuration is managed through the **Admin Dashboard** in the ABM Service Portal. Navigate to **App Configuration > STRIPE** tab to access these settings.
 
 ### Field Descriptions
 
 | Field | Description | Required |
 |-------|-------------|----------|
-| `enabled` | Set to `true` to enable payments, `false` to disable | Yes |
-| `secretKey` | Your Stripe API secret key (starts with `sk_test_` or `sk_live_`) | Yes |
-| `webhookSecret` | Your webhook signing secret (starts with `whsec_`) | Yes |
-| `baseUrl` | Your portal's public URL (see below) | Yes |
-| `logFolderPath` | Folder path for payment logs (optional) | No |
+| STRIPE Enabled | Toggle to enable/disable payment functionality | Yes |
+| Secret Key | Your Stripe API secret key (starts with `sk_test_` or `sk_live_`) | Yes |
+| Webhook Secret | Your webhook signing secret (starts with `whsec_`) | Yes |
+| Base URL | Your portal's public URL (see below) | Yes |
+| Log Folder Path | Folder path for payment logs (optional) | No |
 
 ### Understanding `baseUrl`
 
@@ -111,7 +101,7 @@ The secret key allows your server to communicate with Stripe's API.
 
 **2.** Confirm you are in **Sandbox mode** by checking for the blue "Sandbox" label in the top-left corner of the dashboard.
 
-![Sandbox mode with API keys](./images/stripe/01-secret-key.png)
+![Sandbox mode with API keys](./images/01-secret-key.png)
 
 **3.** On the dashboard, look for the **"API keys"** section on the right side of the page.
 
@@ -135,13 +125,13 @@ Webhooks allow Stripe to notify your portal when payment events occur (e.g., pay
 
 **2.** A menu will expand. Click **"Webhooks"** from the list.
 
-![Developers menu with Webhooks option](./images/stripe/02-developers-menu.png)
+![Developers menu with Webhooks option](./images/02-developers-menu.png)
 
 ### Step 2: Add a New Destination
 
 **1.** On the **Event destinations** page, click the green **"+ Add destination"** button in the top-right area.
 
-![Webhooks tab with Add destination button](./images/stripe/03-webhooks-tab.png)
+![Webhooks tab with Add destination button](./images/03-webhooks-tab.png)
 
 ### Step 3: Select Events to Listen For
 
@@ -149,15 +139,15 @@ Webhooks allow Stripe to notify your portal when payment events occur (e.g., pay
 
 **2.** In the **Events** section, you'll see a search box. Type `checkout` in the search box.
 
-**3.** Check the following 2 events:
+**3.** Check the following 2 required events:
    - `checkout.session.completed`
    - `checkout.session.expired`
 
-   **Note:** The async payment events are not needed as this integration only supports card payments.
+   **Optional:** You can also add `payment_intent.payment_failed` for explicit failure notifications, though card declines are typically handled through the checkout session flow.
 
 **4.** Click the **"Continue"** button.
 
-![Event selection screen](./images/stripe/04-select-events.png)
+![Event selection screen](./images/04-select-events.png)
 
 ### Step 4: Choose Destination Type
 
@@ -165,7 +155,7 @@ Webhooks allow Stripe to notify your portal when payment events occur (e.g., pay
 
 **2.** Click **"Continue"**.
 
-![Destination type selection](./images/stripe/05-destination-type.png)
+![Destination type selection](./images/05-destination-type.png)
 
 ### Step 5: Enter Your Endpoint URL
 
@@ -184,7 +174,7 @@ https://web-dp.tenjo.ovh/api/payments/webhook
 
 **4.** Click **"Create destination"**.
 
-![Endpoint URL configuration](./images/stripe/06-endpoint-url.png)
+![Endpoint URL configuration](./images/06-endpoint-url.png)
 
 ### Step 6: Get the Webhook Secret
 
@@ -194,77 +184,64 @@ After creating the webhook, you'll be taken to the destination details page.
 
 **2.** Click the **eye icon** to reveal the secret.
 
-![Reveal signing secret](./images/stripe/07-reveal-secret.png)
+![Reveal signing secret](./images/07-reveal-secret.png)
 
 **3.** Click the **clipboard icon** to copy the secret to your clipboard.
 
-![Copy signing secret](./images/stripe/08-copy-secret.png)
+![Copy signing secret](./images/08-copy-secret.png)
 
 **4.** The secret should start with `whsec_`. Save this value - you'll need it for the configuration.
 
 ---
 
-## Part 3: Locating the Configuration File
+## Part 3: Accessing the Configuration Page
 
-Before you can update the Stripe settings, you need to find the `serverConfig.json` file on your production server. This file is located inside the ABM Portal installation folder.
+Stripe settings are configured through the Admin Dashboard in the ABM Service Portal.
 
-### Step 1: Open IIS Manager
+**1.** Log in to the ABM Service Portal as an administrator.
 
-**1.** On your Windows server, open **Internet Information Services (IIS) Manager**.
+**2.** In the left sidebar, click **App Configuration**.
 
-**2.** In the left panel under **Sites**, find and expand your ABM Portal site (e.g., "ABMPortal").
+**3.** Select the **STRIPE** tab at the top of the page.
 
-**3.** Right-click on the site name and select **"Explore"** from the context menu.
-
-![IIS Manager - Right-click and select Explore](./images/stripe/09-iis-explore.png)
-
-### Step 2: Navigate to the Server Folder
-
-**1.** A File Explorer window will open showing the ABM Portal installation folder (typically in `C:\inetpub\ABMPortal` or similar).
-
-**2.** You will see several folders and files. Double-click the **"server"** folder to open it.
-
-![ABMPortal folder with server folder](./images/stripe/10-portal-folder.png)
-
-### Step 3: Open the Configuration File
-
-**1.** Inside the **server** folder, locate the file named **"serverConfig.json"**.
-
-![Server folder with serverConfig.json](./images/stripe/11-server-folder.png)
-
-**2.** Right-click on `serverConfig.json` and open it with a text editor (e.g., Notepad, Notepad++, or Visual Studio Code).
-
-**3.** Scroll down to find the **"stripe"** section (usually near the bottom of the file).
-
-![serverConfig.json with stripe section](./images/stripe/12-config-stripe-section.png)
+![Admin Stripe Configuration](./images/09-admin-stripe-config.png)
 
 ---
 
-## Part 4: Updating the Server Configuration
+## Part 4: Configuring Stripe Settings
 
-Now that you have both the Secret Key and Webhook Secret, and you've located the configuration file, update the Stripe settings.
+Now that you have both the Secret Key and Webhook Secret, configure Stripe through the Admin Dashboard.
 
-**1.** Find the `stripe` section and update it with your values:
+### Basic Configuration
 
-```json
-"stripe": {
-    "enabled": true,
-    "secretKey": "sk_test_YOUR_ACTUAL_SECRET_KEY_HERE",
-    "webhookSecret": "whsec_YOUR_ACTUAL_WEBHOOK_SECRET_HERE",
-    "baseUrl": "https://your-actual-portal-url.com",
-    "logFolderPath": ""
-}
-```
+**1.** Toggle **"STRIPE Enabled"** to ON.
 
-**2.** Replace the placeholder values:
-   - `secretKey`: Paste the secret key you copied in Part 1
-   - `webhookSecret`: Paste the webhook secret you copied in Part 2
-   - `baseUrl`: Enter your portal's public URL (same as used in the webhook endpoint, but without `/api/payments/webhook`)
-   - `enabled`: Change to `true` to enable payments
+**2.** Enter your **Secret Key** (from Part 1) - should start with `sk_test_` for sandbox or `sk_live_` for production.
 
-**3.** Save the file.
+**3.** Enter your **Webhook Secret** (from Part 2) - should start with `whsec_`.
 
-**4.** Restart the server for changes to take effect.
+**4.** Enter your **Base URL** - your portal's public URL (same as used in the webhook endpoint, but without `/api/payments/webhook`).
+
+**5.** Optionally enter a **Log Folder Path** for payment logging (e.g., `C:\logs\stripe`).
+
+**6.** Click **Save**.
+
+### Custom Routines (Optional)
+
+The Custom Routines section allows scheduling automated procedures related to Stripe operations.
+
+| Field | Description |
+|-------|-------------|
+| Custom Routines Enabled | Toggle to enable/disable automated procedures |
+| Process Interval (ms) | How often to run the routines (e.g., 60000 = 1 minute) |
+| Batch Size | Number of records to process per run |
+| Procedures | List of stored procedures to execute |
+
+**Managing Procedures:**
+- Click **+ Add Procedure** to add a new procedure to the list
+- Click the **trash icon** next to a procedure to remove it
+
+**Note:** Configuration changes take effect immediately after clicking Save. No server restart is required.
 
 ---
 
@@ -276,11 +253,11 @@ Stripe can automatically send email receipts to customers after successful payme
 
 **1.** In the Stripe Dashboard, click the **Settings gear icon** in the top-right corner.
 
-![Settings gear icon in Stripe Dashboard](./images/stripe/13-settings-gear.png)
+![Settings gear icon in Stripe Dashboard](./images/13-settings-gear.png)
 
 **2.** Under **"Account settings"**, click **"Business"**.
 
-![Business option in Settings](./images/stripe/14-settings-business.png)
+![Business option in Settings](./images/14-settings-business.png)
 
 **3.** Click the **"Customer emails"** tab at the top of the page.
 
@@ -288,7 +265,7 @@ Stripe can automatically send email receipts to customers after successful payme
 
    Alternatively, go directly to: `https://dashboard.stripe.com/settings/emails`
 
-![Customer emails tab with Successful payments toggle enabled](./images/stripe/15-customer-emails-toggle.png)
+![Customer emails tab with Successful payments toggle enabled](./images/15-customer-emails-toggle.png)
 
 ### What Customers Receive
 
@@ -326,8 +303,8 @@ When you're ready to accept real payments, you'll need to configure Live mode. T
 - [ ] Copy the Live secret key (starts with `sk_live_`)
 - [ ] Create a **new** webhook endpoint for Live mode
 - [ ] Copy the Live webhook signing secret
-- [ ] Update `serverConfig.json` with Live mode values
-- [ ] Restart the server
+- [ ] Update the Admin Dashboard (**App Configuration > STRIPE**) with Live mode values
+- [ ] Verify settings are saved
 
 **Warning:** In Live mode, the secret key can only be revealed **once**. Copy it immediately and store it securely. If you lose it, you'll need to create a new key.
 
@@ -366,16 +343,16 @@ Use these card numbers in Sandbox mode (any future expiry date and any 3-digit C
 ### Common Issues
 
 #### "Payments are not enabled"
-- Check that `enabled` is set to `true` in `serverConfig.json`
-- Restart the server after making changes
+- Verify that **STRIPE Enabled** is toggled ON in **App Configuration > STRIPE**
+- Ensure the configuration was saved successfully
 
 #### "Webhook signature verification failed"
-- Ensure `webhookSecret` is correct (starts with `whsec_`)
+- Ensure the **Webhook Secret** is correct (starts with `whsec_`)
 - Make sure you copied the complete secret without extra spaces
 - Verify you're using the secret from the correct webhook endpoint
 
 #### "Payment redirect not working"
-- Check that `baseUrl` is correct and accessible from the internet
+- Check that **Base URL** is correct and accessible from the internet
 - Ensure the URL uses `https://` (not `http://`)
 - Verify there's no trailing slash at the end
 
@@ -406,17 +383,19 @@ If you continue to experience issues:
 
 ## Quick Reference
 
-### Configuration Example (Sandbox)
+### Configuration Location
 
-```json
-"stripe": {
-    "enabled": true,
-    "secretKey": "sk_test_51SmVtFRAJLu09FXE...",
-    "webhookSecret": "whsec_NUUVDBRiBKwgqLKqujQXfiy...",
-    "baseUrl": "https://web-dp.tenjo.ovh",
-    "logFolderPath": "C:\\logs\\stripe"
-}
-```
+**Admin Dashboard > App Configuration > STRIPE tab**
+
+### Required Settings (Sandbox Example)
+
+| Setting | Example Value |
+|---------|---------------|
+| STRIPE Enabled | ON |
+| Secret Key | `sk_test_51SmVtFRAJLu09FXE...` |
+| Webhook Secret | `whsec_NUUVDBRiBKwgqLKqujQXfiy...` |
+| Base URL | `https://web-dp.tenjo.ovh` |
+| Log Folder Path | `C:\logs\stripe` (optional) |
 
 ### Webhook Endpoint URL Format
 

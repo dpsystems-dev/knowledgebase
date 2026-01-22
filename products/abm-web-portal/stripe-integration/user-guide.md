@@ -21,7 +21,7 @@ This guide explains how to use the payment feature in ABM Service Web Portal. Th
 
 ## Section 1: ABM Users - Request Payment
 
-ABM (internal) users can request payments from customers on their behalf. This is typically used when processing payments over the phone or when assisting a customer with their account.
+ABM (internal) users can request payments from customers on their behalf. With the new payment flow, ABM users generate a payment link that customers can use to complete payment securely on their own device. This is ideal for phone-based customer service, email follow-ups, or in-person transactions where the customer prefers to use their own device.
 
 ### Step 1: Navigate to the Customer
 
@@ -29,75 +29,97 @@ ABM (internal) users can request payments from customers on their behalf. This i
 2. Click on **CUSTOMERS** in the left navigation menu
 3. Search for and select the customer you want to process a payment for
 
-![ABM Customer View](./images/user-guide/01-abm-customer-view.png)
+![ABM Customer View](./images/01-abm-customer-view.png)
 *Customer details page showing the REQUEST PAYMENT button in the top right corner*
 
 ### Step 2: Open the Payment Dialog
 
 Click the **REQUEST PAYMENT** button (purple button) in the top right corner of the customer page.
 
-![Request Payment Dialog](./images/user-guide/02-abm-request-payment-dialog.png)
-*The Request Payment dialog showing the amount and reference fields*
-
 ### Step 3: Enter Payment Details
 
 Fill in the payment information:
 
 1. **Amount**: Enter the payment amount (the currency is automatically set based on the customer's account)
-2. **Reference**: Enter a reference for this payment (required) - for example, an invoice number like "Invoice #2024-001"
+2. **Reference**: Enter a reference for this payment (required) - for example, an invoice number like "Invoice #123"
 
-The reference will appear on the payment receipt and in the Stripe dashboard for tracking purposes.
+Click **Send Payment Request** to generate the payment link.
 
-![Request Payment Filled](./images/user-guide/03-abm-request-payment-filled.png)
-*Payment dialog with amount (USD 25.50) and reference (Invoice #2024-001) filled in*
+### Step 4: Share the Payment Link
 
-### Step 4: Proceed to Stripe Checkout
+After submitting, the **Payment Link Ready** dialog appears with multiple options to share the payment link with the customer:
 
-Click **Send Payment Request**. You will be redirected to Stripe's secure checkout page.
+![Payment Link Ready](./images/03-abm-payment-link-ready.png)
+*Payment Link Ready dialog showing QR code, payment amount, reference, and sharing options*
 
-![Stripe Checkout](./images/user-guide/04-stripe-checkout.png)
-*Stripe checkout page showing the payment details*
+The dialog displays:
+- **QR Code**: The customer can scan this with their phone camera to open the payment page
+- **Payment Amount**: The amount and reference for verification
+- **Payment Link**: A text field with the Stripe checkout URL and a copy button
+- **Share Button**: Opens the device's native share menu to send via SMS, email, or messaging apps
+- **Done Button**: Proceeds to monitor the payment status
 
-### Step 5: Enter Card Details
+**Options to share the payment link:**
 
-On the Stripe checkout page:
+1. **Show the QR Code**: If the customer is present, they can scan the QR code with their phone
+2. **Copy the Link**: Click the copy button to copy the URL, then paste it into an email, chat, or SMS
+3. **Use Native Share**: Click the **Share** button to use your device's share functionality
 
-1. You can use **Pay with Link** for faster checkout if you have a Link account, OR
-2. Enter card details manually:
-   - Card number
-   - Expiration date (MM/YY)
-   - CVC code
-   - Cardholder name
-   - Country
+Once the link is shared with the customer, click **Done** to proceed.
 
-![Stripe Card Form](./images/user-guide/05-stripe-card-form.png)
-*Stripe payment form showing card input fields*
+### Step 5: Wait for Customer Payment
 
-![Stripe Card Filled](./images/user-guide/06-stripe-card-filled.png)
-*Stripe payment form with card details entered*
+After clicking **Done**, a **Payment Status** dialog appears that monitors the payment in real-time:
 
-### Step 6: Complete Payment
+![Waiting for Payment](./images/04-abm-waiting-for-payment.png)
+*Payment Status dialog showing waiting state with payment details and polling indicator*
 
-Click the **Pay** button to process the payment. After successful payment, you will be redirected to the confirmation page.
+The dialog shows:
+- **Status indicator**: A loading spinner while waiting
+- **Payment details**: Amount, reference, and customer name
+- **Polling status**: The system checks for payment completion every 8 seconds
+- **Stop Waiting button**: Click to close the dialog and check status later
 
-![Payment Success](./images/user-guide/07-payment-success.png)
-*Payment successful confirmation page*
+You can leave this dialog open while the customer completes payment, or click **Stop Waiting** to close it. The payment status will update in the payments history regardless.
 
-The confirmation page shows:
+### Step 6: Payment Completed
+
+When the customer completes payment, the dialog automatically updates to show the confirmation:
+
+![Payment Completed](./images/05-abm-payment-completed.png)
+*Payment Status dialog showing successful payment completion*
+
+The confirmation shows:
 - A green checkmark indicating success
-- The customer name and code
-- The payment reference
-- The amount paid
+- **Payment Completed!** status
+- The payment amount, reference, and customer name
 
-### Step 7: Return to Customer Page
+Click **Close** to return to the customer page. The payments grid will automatically refresh to show the new payment.
 
-Click the **Back** button to return to the customer page.
+### Customer Experience
 
-### Step 8: View Payment History
+When the customer opens the payment link (via QR code scan or direct link), they see the Stripe checkout page:
+
+![Customer Stripe Checkout](./images/06-customer-stripe-checkout.png)
+*Stripe checkout page as seen by the customer, showing payment details and card entry form*
+
+The customer can:
+- Use **Continue with Link** for faster checkout if they have a Stripe Link account
+- Enter card details manually (card number, expiration, CVC, name, country)
+- Click **Pay** to complete the payment
+
+After successful payment, the customer sees a confirmation page:
+
+![Customer Payment Success](./images/07-customer-payment-success.png)
+*Payment successful page shown to the customer after completing payment*
+
+The customer can safely close this page after seeing the confirmation.
+
+### Step 7: View Payment History
 
 Navigate to the **PAYMENTS** tab on the customer page to see all payment history for this customer.
 
-![Payments History Tab](./images/user-guide/08-payments-history-tab.png)
+![Payments History Tab](./images/08-payments-history-tab.png)
 *PAYMENTS tab showing the completed payment with status, amount, and receipt link*
 
 The payment history shows:
@@ -107,6 +129,8 @@ The payment history shows:
 - **Status**: Payment status (COMPLETED, PENDING, etc.)
 - **Created By**: The email of the user who initiated the payment
 - **Receipt**: Link to view the Stripe receipt
+
+**Tip**: For pending payments, you can click "Show Payment Link" in the actions menu to display the QR code again if you need to re-share it with the customer.
 
 ---
 
@@ -120,14 +144,14 @@ External users (customers) can make payments directly from their customer portal
 2. Click on **CUSTOMERS** in the left navigation menu
 3. Select your company from the list
 
-![External Customer View](./images/user-guide/09-external-customer-view.png)
+![External Customer View](./images/09-external-customer-view.png)
 *External user view showing company details and the MAKE PAYMENT button*
 
 ### Step 2: Open the Payment Dialog
 
 Click the **MAKE PAYMENT** button (green button) in the top right corner.
 
-![Make Payment Dialog](./images/user-guide/10-external-make-payment-dialog.png)
+![Make Payment Dialog](./images/10-external-make-payment-dialog.png)
 *Make a Payment dialog for external users*
 
 ### Step 3: Enter Payment Details
@@ -153,7 +177,7 @@ After successful payment, you will see the confirmation page with payment detail
 
 Click **Back** to return to your company page, then navigate to the **MY PAYMENTS** tab to see your payment history.
 
-![My Payments Tab](./images/user-guide/11-external-my-payments-tab.png)
+![My Payments Tab](./images/11-external-my-payments-tab.png)
 *MY PAYMENTS tab showing payment history for external users*
 
 ---
@@ -167,14 +191,14 @@ Administrators can view all payment transactions in the Stripe Dashboard for rec
 1. Log in to the Stripe Dashboard at [dashboard.stripe.com](https://dashboard.stripe.com)
 2. Navigate to **Transactions** in the left menu
 
-![Stripe Payments List](./images/user-guide/12-stripe-payments-list.png)
+![Stripe Payments List](./images/12-stripe-payments-list.png)
 *Stripe Transactions page showing all payments*
 
 ### Viewing Payment Details
 
 Click on any payment to view its details:
 
-![Stripe Payment Details](./images/user-guide/13-stripe-payment-details.png)
+![Stripe Payment Details](./images/13-stripe-payment-details.png)
 *Payment details page showing transaction information*
 
 The payment details page shows:
@@ -189,7 +213,7 @@ The payment details page shows:
 
 Each payment includes metadata that links it back to the ABM Service Portal:
 
-![Stripe Payment Metadata](./images/user-guide/14-stripe-payment-metadata.png)
+![Stripe Payment Metadata](./images/14-stripe-payment-metadata.png)
 *Metadata section showing portal-specific information*
 
 The metadata includes:

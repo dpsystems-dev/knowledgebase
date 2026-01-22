@@ -112,7 +112,7 @@ If you need to remove the developer's access later:
 
 **2.** Find the developer in the team members list
 
-**3.** Click the **three dots menu** (...) next to their name
+**3.** Click the **three dots menu** (⋮) next to their name
 
 **4.** Select **"Remove"**
 

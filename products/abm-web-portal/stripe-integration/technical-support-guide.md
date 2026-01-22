@@ -18,9 +18,11 @@ This guide is for the support team to understand the technical aspects of the St
 4. [Payment Workflow Diagram](#4-payment-workflow-diagram)
 5. [What Gets Updated and When](#5-what-gets-updated-and-when)
 6. [The Happy Path](#6-the-happy-path)
-7. [Edge Cases and How the System Handles Them](#7-edge-cases-and-how-the-system-handles-them)
-8. [Troubleshooting Guide](#8-troubleshooting-guide)
-9. [Quick Reference](#9-quick-reference)
+7. [Custom Routines Processing](#7-custom-routines-processing)
+8. [ABM vs External User Flows](#8-abm-vs-external-user-flows)
+9. [Edge Cases and How the System Handles Them](#9-edge-cases-and-how-the-system-handles-them)
+10. [Troubleshooting Guide](#10-troubleshooting-guide)
+11. [Quick Reference](#11-quick-reference)
 
 ---
 
@@ -29,21 +31,21 @@ This guide is for the support team to understand the technical aspects of the St
 The Stripe payment system allows customers to pay via credit/debit card. There are three main components working together:
 
 ```mermaid
-flowchart LR
-    subgraph Our System
+flowchart TB
+    subgraph OurSystem["Our System"]
         A[ABM Portal]
         B[(StripePayments Table)]
     end
-    subgraph External
+    subgraph External["External Services"]
         C[Stripe Payment Processor]
         D[Stripe Events / Webhooks]
         E[Customer's Bank]
     end
 
-    A <--> C
-    C <--> E
-    A --> B
-    D --> A
+    A <-->|API calls| C
+    C <-->|Card processing| E
+    A -->|Store payment data| B
+    D -->|Notifications| A
 ```
 
 **How payments flow:**
@@ -84,7 +86,10 @@ This is the main table that stores all payment information. Understanding each c
 | **StripeEventId** | ID of Stripe webhook event that updated status | `evt_abc123...` |
 | **StripeReceiptUrl** | Link to downloadable receipt | `https://receipts.stripe.com/...` |
 | **FailureReason** | Error message if payment failed | `Card was declined` |
-| **LatestStatusUpdateSource** | What triggered the last update | `webhook`, `polling`, `cron` |
+| **LatestStatusUpdateSource** | What triggered the last update | `webhook`, `polling`, `public_polling`, `cron` |
+| **CustomRoutinesStatus** | Post-payment processing status | `skip`, `pending`, `completed`, `error` |
+| **CustomRoutinesProcessedAt** | When custom routines finished | `2025-01-09 10:35:30` |
+| **CustomRoutinesError** | Error message if failed | `Procedure failed: ...` |
 
 ### Understanding AmountInCents
 
@@ -110,6 +115,7 @@ erDiagram
         string CustomerCode
         string Status
         int AmountInCents
+        string Currency
     }
     Customers {
         string UniqueId PK
@@ -118,6 +124,17 @@ erDiagram
         int CurrencyCode
     }
 ```
+
+### Understanding Custom Routines Status
+
+| Status | Meaning | Action Required |
+|--------|---------|-----------------|
+| `skip` | Feature disabled when payment completed | None |
+| `pending` | Waiting for processor | Wait |
+| `completed` | All procedures succeeded | None |
+| `error` | Procedure failed | Check CustomRoutinesError |
+
+**Note:** Custom routines don't retry. Error status means post-payment processing failed, but payment itself is still `completed`.
 
 ---
 
@@ -131,7 +148,7 @@ erDiagram
 | **PENDING** | Yellow | Customer redirected to Stripe, waiting for payment |
 | **COMPLETED** | Green | Payment successful, money received |
 | **FAILED** | Red | Card declined or payment error |
-| **CANCELLED** | Red | Customer clicked cancel on checkout page |
+| **CANCELLED** | Red | User cancelled via the authenticated result page (external flow) |
 | **EXPIRED** | Grey | Customer didn't complete payment within 24 hours |
 
 ### Status Transition Diagram
@@ -141,18 +158,18 @@ stateDiagram-v2
     [*] --> CREATED: Initial state
 
     CREATED --> PENDING: Session created
-    CREATED --> EXPIRED: Session timeout
+    CREATED --> EXPIRED: Session stuck
     CREATED --> CANCELLED: User cancels
 
-    PENDING --> COMPLETED: Payment succeeds
-    PENDING --> FAILED: Card declined
-    PENDING --> EXPIRED: 24h timeout
+    PENDING --> COMPLETED: Payment succeeds ✓
+    PENDING --> FAILED: Card declined ✗
+    PENDING --> EXPIRED: 24h timeout ○
     PENDING --> CANCELLED: User cancels
 
-    COMPLETED --> [*]: Terminal
-    FAILED --> [*]: Terminal
-    EXPIRED --> [*]: Terminal
-    CANCELLED --> [*]: Terminal
+    COMPLETED --> [*]: Terminal State
+    FAILED --> [*]: Terminal State
+    EXPIRED --> [*]: Terminal State
+    CANCELLED --> [*]: Terminal State
 ```
 
 ### Valid Status Transitions
@@ -176,56 +193,59 @@ stateDiagram-v2
 
 ```mermaid
 sequenceDiagram
-    participant User as ABM Portal User
+    participant Portal as ABM Portal
     participant Server as Our Server
     participant Stripe
     participant DB as StripePayments DB
 
     rect rgb(240, 248, 255)
-        Note over User,DB: Payment Creation Phase
-        User->>Server: 1. Click "Request Payment"
+        Note over Portal,DB: Payment Creation Phase
+        Portal->>Server: 1. Click "Request Payment"
         Server->>DB: 2. Create payment record (Status: CREATED)
         Server->>Stripe: 3. Create checkout session
         Stripe-->>Server: Session URL returned
-        Server->>DB: 4. Update record (Status: PENDING)
-        Server-->>User: 5. Return checkout URL
+        Server->>DB: 4. Update record (Status: PENDING, store session URL)
+        Server-->>Portal: 5. Return checkout URL
     end
 
     rect rgb(255, 248, 240)
-        Note over User,DB: Customer Checkout Phase
-        User->>Stripe: 6. Redirect to Stripe checkout
-        Note over Stripe: Customer enters card details
+        Note over Portal,DB: Customer Checkout Phase
+        Portal->>Stripe: 6. Redirect customer to Stripe
+        Note over Stripe: Customer enters card details<br/>and clicks "Pay"
         Stripe->>Stripe: Process payment
     end
 
     rect rgb(240, 255, 240)
-        Note over User,DB: Status Update Phase
+        Note over Portal,DB: Status Update Phase
         alt Webhook (Primary)
             Stripe->>Server: 7a. Send webhook event
         else Polling (Backup)
-            User->>Server: 7b. Frontend checks status
+            Portal->>Server: 7b. Frontend checks status
         else Cron (Fallback)
             Server->>Stripe: 7c. Background job checks
         end
         Server->>DB: 8. Update status to COMPLETED
         Server->>Stripe: 9. Fetch receipt URL (async)
         Server->>DB: Store receipt URL
+        Server->>DB: 10. Custom Routines Processing (if enabled)
     end
 ```
 
-### Three Ways Status Gets Updated
+### Four Ways Status Gets Updated
 
-The system has three mechanisms to detect payment completion. This redundancy ensures no payment is missed:
+The system has four mechanisms to detect payment completion. This redundancy ensures no payment is missed:
 
 | Method | How It Works | When It's Used |
 |--------|--------------|----------------|
 | **Webhook** | Stripe sends a notification to our server | Primary method, fastest |
-| **Polling** | Frontend asks server "is it done yet?" | Backup, after customer returns |
+| **Polling** | Frontend asks server "is it done yet?" | Backup, after authenticated customer returns |
+| **Public Polling** | Customer result page polls status | For ABM-initiated payments (unauthenticated) |
 | **Cron** | Background job checks every 5 minutes | Fallback, catches missed webhooks |
 
 The `LatestStatusUpdateSource` column shows which method updated the payment:
 - `webhook` - Updated by Stripe webhook
 - `polling` - Updated when frontend checked status
+- `public_polling` - Updated when customer result page checked status
 - `cron` - Updated by background processor
 
 ---
@@ -241,13 +261,17 @@ When a user clicks "Request Payment":
 | Status | `created` | Initial state |
 | CustomerUniqueId | From selected customer | Links to Customers table |
 | CustomerCode | Customer's code | e.g., `000001` |
-| AmountInCents | Entered amount x 100 | e.g., 25.50 becomes 2550 |
-| Currency | From customer's account | e.g., `EUR` |
+| AmountInCents | Entered amount × 100 | e.g., 25.50 becomes 2550 |
+| Currency | From customer's CurrencyCode | Mapped to Stripe (EUR, USD, GBP, etc.) |
 | ReferenceText | User-entered reference | e.g., `Invoice #2024-001` |
 | IdempotencyKey | Auto-generated | Prevents duplicates |
 | CreatedByEmail | Logged-in user's email | Audit trail |
 | SourceRole | `abm` or `external` | Who initiated |
 | CreatedAt | Current timestamp | Auto-set |
+
+**Currency Mapping**: Determined from customer's CurrencyCode field:
+- Code `0` → EUR, Code `1` → USD, Code `44` → GBP, Code `81` → JPY
+- Unknown codes default to EUR
 
 ### Phase 2: Session Created
 
@@ -255,7 +279,7 @@ After Stripe returns the checkout session:
 
 | Column | Value Set | Notes |
 |--------|-----------|-------|
-| Status | `pending` | Changed from `created` |
+| Status | `pending` | → Changed from `created` |
 | StripeSessionId | From Stripe | e.g., `cs_test_abc123` |
 | StripeSessionUrl | Checkout URL | Where customer goes |
 | ExpiresAt | Current time + 24 hours | Session timeout |
@@ -267,11 +291,11 @@ When payment succeeds (via webhook, polling, or cron):
 
 | Column | Value Set | Notes |
 |--------|-----------|-------|
-| Status | `completed` | Changed from `pending` |
+| Status | `completed` | → Changed from `pending` |
 | CompletedAt | Current timestamp | When money was received |
 | StripePaymentIntentId | From Stripe | e.g., `pi_xyz789` |
 | StripeEventId | Webhook event ID | For duplicate prevention |
-| LatestStatusUpdateSource | `webhook`/`polling`/`cron` | What triggered update |
+| LatestStatusUpdateSource | `webhook`/`polling`/`public_polling`/`cron` | What triggered update |
 | UpdatedAt | Current timestamp | Last update time |
 | StripeReceiptUrl | Receipt link | Fetched asynchronously |
 
@@ -280,7 +304,6 @@ When payment succeeds (via webhook, polling, or cron):
 Depending on the outcome:
 
 **If Failed:**
-
 | Column | Value Set |
 |--------|-----------|
 | Status | `failed` |
@@ -288,18 +311,26 @@ Depending on the outcome:
 | UpdatedAt | Current timestamp |
 
 **If Expired:**
-
 | Column | Value Set |
 |--------|-----------|
 | Status | `expired` |
 | UpdatedAt | Current timestamp |
 
 **If Cancelled:**
-
 | Column | Value Set |
 |--------|-----------|
 | Status | `cancelled` |
 | UpdatedAt | Current timestamp |
+
+### Phase 5: Custom Routines (if enabled)
+
+After payment completes, the custom routines processor runs configured SQL stored procedures:
+
+| Column | Value Set | Notes |
+|--------|-----------|-------|
+| CustomRoutinesStatus | `pending` → `completed`/`error` | Processing state |
+| CustomRoutinesProcessedAt | Current timestamp | When finished |
+| CustomRoutinesError | Error message (if failed) | Truncated to 1000 chars |
 
 ---
 
@@ -311,51 +342,51 @@ This is what a successful payment looks like in the database:
 
 ```
 10:30:00  User clicks "Request Payment" for EUR 50.00
-          |
-          v
-+---------------------------------------------------------------------+
-| PaymentId: 1                                                        |
-| Status: CREATED                                                     |
-| AmountInCents: 5000                                                 |
-| Currency: EUR                                                       |
-| ReferenceText: Invoice #2024-001                                    |
-| CreatedAt: 2025-01-09 10:30:00                                      |
-| CreatedByEmail: john@abm.com                                        |
-| SourceRole: abm                                                     |
-| IdempotencyKey: pay_CUST001_1736418600000                           |
-+---------------------------------------------------------------------+
-          |
+          │
+          ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ PaymentId: 1                                                        │
+│ Status: CREATED                                                     │
+│ AmountInCents: 5000                                                 │
+│ Currency: EUR                                                       │
+│ ReferenceText: Invoice #2024-001                                    │
+│ CreatedAt: 2025-01-09 10:30:00                                      │
+│ CreatedByEmail: john@abm.com                                        │
+│ SourceRole: abm                                                     │
+│ IdempotencyKey: pay_CUST001_1736418600000                           │
+└─────────────────────────────────────────────────────────────────────┘
+          │
 10:30:01  Stripe session created
-          |
-          v
-+---------------------------------------------------------------------+
-| PaymentId: 1                                                        |
-| Status: PENDING  <-- Changed                                        |
-| StripeSessionId: cs_test_a1kXjgfZ8B9m...  <-- Added                |
-| StripeSessionUrl: https://checkout.stripe.com/...  <-- Added       |
-| ExpiresAt: 2025-01-10 10:30:01  <-- Added (24 hours later)         |
-| UpdatedAt: 2025-01-09 10:30:01  <-- Added                          |
-| ... (other fields unchanged)                                        |
-+---------------------------------------------------------------------+
-          |
+          │
+          ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ PaymentId: 1                                                        │
+│ Status: PENDING  ◀── Changed                                        │
+│ StripeSessionId: cs_test_a1kXjgfZ8B9m...  ◀── Added                │
+│ StripeSessionUrl: https://checkout.stripe.com/...  ◀── Added       │
+│ ExpiresAt: 2025-01-10 10:30:01  ◀── Added (24 hours later)         │
+│ UpdatedAt: 2025-01-09 10:30:01  ◀── Added                          │
+│ ... (other fields unchanged)                                        │
+└─────────────────────────────────────────────────────────────────────┘
+          │
 10:30:02  Customer redirected to Stripe checkout page
-          |
-          |  (Customer enters card details)
-          |
+          │
+          │  (Customer enters card details)
+          │
 10:32:15  Customer clicks "Pay" - Payment succeeds
-          |
-          v
-+---------------------------------------------------------------------+
-| PaymentId: 1                                                        |
-| Status: COMPLETED  <-- Changed                                      |
-| CompletedAt: 2025-01-09 10:32:15  <-- Added                        |
-| StripePaymentIntentId: pi_3Qc8x9A...  <-- Added                    |
-| StripeEventId: evt_1Qc8xABC...  <-- Added                          |
-| LatestStatusUpdateSource: webhook  <-- Added                        |
-| UpdatedAt: 2025-01-09 10:32:15  <-- Updated                        |
-| StripeReceiptUrl: https://receipts.stripe.com/...  <-- Added       |
-| ... (other fields unchanged)                                        |
-+---------------------------------------------------------------------+
+          │
+          ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ PaymentId: 1                                                        │
+│ Status: COMPLETED  ◀── Changed                                      │
+│ CompletedAt: 2025-01-09 10:32:15  ◀── Added                        │
+│ StripePaymentIntentId: pi_3Qc8x9A...  ◀── Added                    │
+│ StripeEventId: evt_1Qc8xABC...  ◀── Added                          │
+│ LatestStatusUpdateSource: webhook  ◀── Added                        │
+│ UpdatedAt: 2025-01-09 10:32:15  ◀── Updated                        │
+│ StripeReceiptUrl: https://receipts.stripe.com/...  ◀── Added       │
+│ ... (other fields unchanged)                                        │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
 ### Verifying a Successful Payment
@@ -368,9 +399,93 @@ A completed payment should have:
 - [ ] StripeReceiptUrl is available (may take a few seconds)
 - [ ] LatestStatusUpdateSource shows how it was updated
 
+### Custom Routines Verification (if enabled)
+
+- [ ] CustomRoutinesStatus = `completed` or `skip`
+- [ ] If `error`, check CustomRoutinesError
+
 ---
 
-## 7. Edge Cases and How the System Handles Them
+## 7. Custom Routines Processing
+
+### Overview
+
+Custom routines allow automatic execution of SQL stored procedures after a payment completes. This is useful for triggering business logic like updating invoice statuses, sending notifications, or syncing with external systems.
+
+### Status Flow
+
+```mermaid
+flowchart TD
+    A[Payment Completed] --> B{Custom Routines<br/>Enabled?}
+    B -->|No| C[Status: skip]
+    B -->|Yes| D[Status: pending]
+    D --> E[Processor runs<br/>every 60s]
+    E --> F{Procedures<br/>succeed?}
+    F -->|Yes| G[Status: completed]
+    F -->|No| H[Status: error]
+```
+
+### Key Support Notes
+
+1. **No automatic retry**: If a custom routine fails, it stays in `error` status. Manual intervention is required.
+
+2. **Payment still successful**: Custom routines failing does NOT affect the payment status. The payment is still `completed` even if routines fail.
+
+3. **Processing interval**: Configurable in Stripe App Configuration (`customRoutines.processIntervalMs`); default is 60 seconds.
+
+4. **Error messages**: Check `CustomRoutinesError` for the specific error. Messages are truncated to 1000 characters.
+
+### Troubleshooting
+
+| Symptom | Likely Cause | Resolution |
+|---------|--------------|------------|
+| Status stuck on `pending` | Processor not running | Check server logs for processor errors |
+| Status = `error` | Stored procedure failed | Check CustomRoutinesError, fix procedure |
+| Status = `skip` | Feature disabled | Normal - no action needed |
+
+---
+
+## 8. ABM vs External User Flows
+
+### Overview
+
+Payments can be initiated by two types of users, with different flows:
+
+| Aspect | ABM Users | External Users |
+|--------|-----------|----------------|
+| Who | Internal staff | Customers with portal access |
+| SourceRole | `abm` | `external` |
+| Success URL | `/payments/customer-result` (public) | `/payments/result` (authenticated) |
+| QR Code | Yes - share with customer | No - pays directly |
+
+### Why Different Success URLs?
+
+**ABM Users** initiate payments on behalf of customers. The customer receives a QR code or link to pay. When they complete payment, they land on a public result page (`/payments/customer-result`) that doesn't require login.
+
+**External Users** are customers logged into the portal who pay their own invoices. After payment, they return to an authenticated result page (`/payments/result`) within their portal session.
+
+**Important:** The public customer result page does **not** mark a payment as `cancelled`. It only polls status and shows the result. If the customer cancels the Stripe checkout, the payment stays `pending` until it expires or completes. Only the authenticated result flow (`/payments/result`) calls the cancel API to set `cancelled`.
+
+### Identifying Payment Source
+
+Check the `SourceRole` column:
+- `abm` = Created by internal ABM staff
+- `external` = Created by external customer directly
+
+### Support Scenarios
+
+**ABM-initiated payment issues:**
+- Customer says they paid but record shows `pending` → Check if webhook was received, wait for cron
+- Customer can't access QR code → Resend the payment link from the payment details screen
+- Status shows `completed` but customer didn't see success page → Payment succeeded, their browser may have closed
+
+**External-initiated payment issues:**
+- Customer logged out mid-payment → Payment still processes, check status via SourceRole = `external`
+- Customer wants receipt → Check StripeReceiptUrl or direct them to check email
+
+---
+
+## 9. Edge Cases and How the System Handles Them
 
 ### Edge Case 1: Customer's Browser Crashes During Payment
 
@@ -419,6 +534,22 @@ A completed payment should have:
 **How to verify:** Status = `expired` and CompletedAt is NULL.
 
 **Resolution:** Customer needs to initiate a new payment.
+
+---
+
+### Edge Case 3b: Customer Clicks "Cancel" on Stripe Checkout
+
+**Scenario:** Customer clicks the cancel link on the Stripe checkout page.
+
+**What happens:**
+1. For **external users** (authenticated flow), the result page calls the cancel API
+2. Status updates to `cancelled`
+3. For **ABM public payments**, the result page is public and does **not** cancel
+4. Status stays `pending` until Stripe expires it or a webhook marks it `completed`
+
+**How to verify:** Check `LatestStatusUpdateSource`:
+- `polling` for authenticated cancel
+- `public_polling` for public status checks (no cancellation)
 
 ---
 
@@ -481,10 +612,12 @@ A completed payment should have:
 
 **Scenario:** User tries to process an invalid amount.
 
+Default limits apply unless overridden in Stripe App Configuration (`stripe.minAmount` / `stripe.maxAmount`).
+
 | Condition | Result |
 |-----------|--------|
-| Amount < 0.50 | Rejected: "Minimum payment is 0.50" |
-| Amount > 50,000 | Rejected: "Maximum payment is 50,000" |
+| Amount < configured minimum (default 0.50) | Rejected: "Amount must be at least [minAmount]" |
+| Amount > configured maximum (default 50,000) | Rejected: "Amount cannot exceed [maxAmount]" |
 | Amount is negative | Rejected before payment created |
 | Amount is 0 | Rejected before payment created |
 
@@ -492,7 +625,7 @@ A completed payment should have:
 
 ---
 
-## 8. Troubleshooting Guide
+## 10. Troubleshooting Guide
 
 ### Problem: Payment Shows PENDING But Customer Says They Paid
 
@@ -547,7 +680,7 @@ A completed payment should have:
 
 ---
 
-## 9. Quick Reference
+## 11. Quick Reference
 
 ### Status at a Glance
 
@@ -570,7 +703,18 @@ A completed payment should have:
 | Why it failed | FailureReason |
 | Receipt link | StripeReceiptUrl |
 | Who initiated payment | CreatedByEmail, SourceRole |
-| Payment amount | AmountInCents / 100 |
+| Payment amount | AmountInCents ÷ 100 |
+| Post-payment processing | CustomRoutinesStatus |
+| Why custom routines failed | CustomRoutinesError |
+
+### Custom Routines Status at a Glance
+
+| Status | Meaning | Action |
+|--------|---------|--------|
+| `skip` | Feature disabled | None |
+| `pending` | Waiting for processor | Wait (default 60s) |
+| `completed` | All procedures ran | None |
+| `error` | Procedure failed | Check CustomRoutinesError |
 
 ### ID Prefixes
 
@@ -590,6 +734,7 @@ A completed payment should have:
 | Checkout session expiry | 24 hours after creation |
 | Stuck "created" timeout | 5 minutes |
 | Background cron check | Every 5 minutes |
+| Custom routine processing | Configurable (default 60s) |
 
 ---
 
@@ -599,3 +744,6 @@ A completed payment should have:
 - [Configuration Guide](./configuration) - Server configuration setup
 - [Production Checklist](./production-checklist) - Going live checklist
 - [Developer Access Guide](./developer-access) - Developer access for clients
+
+**Developer Documentation** (server/payments/):
+- Currency mapping: `currencyMapping.js`
