@@ -60,6 +60,11 @@ export default function Home(): ReactNode {
                 description="Comprehensive documentation for the ABM Web Portal including installation, technical guides, and troubleshooting."
                 link="/abm-web-portal/description"
               />
+              <ProductCard
+                title="Docket Email Processor"
+                description="Windows service that automatically emails and prints job card dockets for completed service actions."
+                link="/abm-service-docket-email-processor/description"
+              />
             </div>
           </div>
         </section>

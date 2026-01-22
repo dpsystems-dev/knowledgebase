@@ -43,7 +43,16 @@ const config: Config = {
         sidebarPath: './sidebarsAbmWebPortal.ts',
       },
     ],
-    // Add more products here in the future
+    // ABM Service Docket Email Processor docs plugin
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'abm-service-docket-email-processor',
+        path: 'products/abm-service-docket-email-processor',
+        routeBasePath: 'abm-service-docket-email-processor',
+        sidebarPath: './sidebarsAbmServiceDocketEmailProcessor.ts',
+      },
+    ],
   ],
 
   presets: [
@@ -87,6 +96,13 @@ const config: Config = {
           position: 'left',
         },
         {
+          type: 'doc',
+          docId: 'description',
+          docsPluginId: 'abm-service-docket-email-processor',
+          label: 'Docket Email Processor',
+          position: 'left',
+        },
+        {
           href: 'https://github.com/dpsystems-dev/knowledgebase',
           label: 'GitHub',
           position: 'right',
@@ -106,6 +122,10 @@ const config: Config = {
             {
               label: 'ABM Web Portal',
               to: '/abm-web-portal/description',
+            },
+            {
+              label: 'Docket Email Processor',
+              to: '/abm-service-docket-email-processor/description',
             },
           ],
         },
