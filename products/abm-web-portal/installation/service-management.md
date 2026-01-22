@@ -107,4 +107,16 @@ The service appears in Windows Services Manager (`services.msc`) as:
 ABM Web Portal - {port}
 ```
 
-For example: `ABM Web Portal - 3001`
+For example: `ABM Web Portal - 82`
+
+![Windows Services Manager](./screenshots/screenshot-windows-services.png)
+
+From here you can:
+- View the service status and startup type
+- Start, stop, pause, or restart the service
+- Change the startup type (Automatic, Manual, Disabled)
+- View the service description and dependencies
+
+:::tip
+You can open Services Manager by pressing `Win + R`, typing `services.msc`, and pressing Enter.
+:::
