@@ -83,4 +83,4 @@ The server exposes parallel API systems for the same features with different acc
 ## Quick Links
 
 - [Installation Prerequisites](installation/prerequisites)
-- [Stripe Integration](stripe-integration/)
+- [Stripe Integration](stripe-integration/user-guide)
