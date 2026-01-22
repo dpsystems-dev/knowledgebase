@@ -1,0 +1,10 @@
+{
+  "label": "Stripe Integration",
+  "position": 3,
+  "collapsible": true,
+  "collapsed": false,
+  "link": {
+    "type": "generated-index",
+    "description": "Documentation for the Stripe payment integration in ABM Web Portal. Covers configuration, user guides, technical support information, and production deployment."
+  }
+}
