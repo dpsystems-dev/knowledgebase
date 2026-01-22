@@ -46,7 +46,7 @@ export default function Home(): ReactNode {
   return (
     <Layout
       title="Home"
-      description="DPSystems Knowledge Base - Documentation for all products">
+      description="DP Systems - Documentation for all products">
       <HomepageHeader />
       <main>
         <section className={styles.products}>
