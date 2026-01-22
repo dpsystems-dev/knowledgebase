@@ -13,5 +13,3 @@ The ABM Web Portal is a comprehensive solution for managing your business operat
 ## Quick Links
 
 - [Installation Guide](installation/prerequisites)
-- [Technical Manual](technical-manual/architecture)
-- [Troubleshooting](troubleshooting/common-issues)
