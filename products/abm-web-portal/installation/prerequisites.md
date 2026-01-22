@@ -9,16 +9,20 @@ Before installing ABM Web Portal, ensure your environment meets the following re
 ## System Requirements
 
 - Operating System: Windows Server 2019 or later
-- RAM: Minimum 8GB
-- Disk Space: Minimum 50GB available
+- RAM: Minimum 4GB
+- Disk Space: Minimum 1GB available
 
 ## Software Requirements
 
-- .NET Framework 4.8 or later
-- SQL Server 2019 or later
-- IIS 10 or later
+- ABM Service 11.4 or higher must be installed (can be on a different server)
 
-## Network Requirements
+:::note
+All other dependencies (Node.js, web server components, etc.) are packaged in the zip file that ABMPortalDeployer.exe downloads from GitHub during installation.
+:::
 
-- Port 443 for HTTPS traffic
-- Port 1433 for SQL Server (if remote database)
+## Network & Access Requirements
+
+- A port must be available for the ABM Portal Windows service
+- ABMPortalDeployer.exe requires administrator privileges to run
+- SQL connection must use SQL Authentication (Windows Authentication is not supported)
+- Server must have network access to the SQL Server where the ABM database resides
