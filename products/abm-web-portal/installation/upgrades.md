@@ -7,27 +7,22 @@ description: How to update the Deployer application and upgrade the ABM Portal t
 
 # Upgrades
 
-This guide covers updating both the Deployer application itself and the ABM Portal.
+This guide covers two distinct types of updates:
 
-## Deployer Auto-Update
+| Update Type | What It Updates | How It Works |
+|-------------|-----------------|--------------|
+| **ABM Portal Upgrade** | The web portal application | Manual process using the Deployer |
+| **Deployer Auto-Update** | The Deployer tool itself | Automatic when launching the Deployer |
 
-The Deployer checks for updates automatically when launched. If a newer version is available, you'll see a prompt.
+---
 
-![Update Available](./screenshots/screenshot-update-available.png)
+## ABM Portal Upgrades
 
-Click **Yes** to download and install the update. The application will:
-1. Download the new version
-2. Close the current instance
-3. Replace itself with the new version
-4. Restart automatically
+Portal upgrades update the ABM Web Portal application to a new version. This is a manual process performed through the Deployer.
 
-:::note
-No manual steps required. The update process handles everything automatically.
+:::info When to Upgrade
+Upgrade the portal when new features, bug fixes, or security updates are released. Check release notes to understand what's included in each version.
 :::
-
-## Portal Upgrades
-
-To upgrade the ABM Portal to a new version:
 
 ### Step 1: Open Release Selection
 
@@ -61,7 +56,7 @@ The Release Selection screen shows all available versions.
 2. Click **Start Service**
 3. Verify the new version number in the title bar
 
-## Configuration Preservation
+### Configuration Preservation
 
 During upgrades, your configuration is automatically preserved:
 
@@ -72,7 +67,7 @@ During upgrades, your configuration is automatically preserved:
 
 A backup copy is kept at `serverConfig.json.backup` in the server folder.
 
-## Downgrading
+### Downgrading
 
 You can also downgrade to an older version:
 
@@ -84,7 +79,7 @@ You can also downgrade to an older version:
 Downgrading may cause issues if the older version doesn't support newer configuration options. Test thoroughly after downgrading.
 :::
 
-## Upgrade Checklist
+### Upgrade Checklist
 
 | Step | Action |
 |------|--------|
@@ -96,3 +91,23 @@ Downgrading may cause issues if the older version doesn't support newer configur
 | 6 | Select new version and download |
 | 7 | Start service |
 | 8 | Test portal in browser |
+
+---
+
+## Deployer Auto-Update
+
+The Deployer application (the tool you use to manage the portal) updates itself automatically. This is separate from portal upgrades.
+
+When you launch the Deployer, it checks for updates. If a newer version is available, you'll see a prompt:
+
+![Update Available](./screenshots/screenshot-update-available.png)
+
+Click **Yes** to download and install the update. The application will:
+1. Download the new version
+2. Close the current instance
+3. Replace itself with the new version
+4. Restart automatically
+
+:::note
+No manual steps required. The Deployer update process handles everything automatically.
+:::
