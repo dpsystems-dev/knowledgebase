@@ -128,4 +128,4 @@ ASMDocketEmailPrint.exe 1 "Server=localhost;Database=ABMService;Integrated Secur
 
 ## Quick Links
 
-- [Email Processing Paths](email-processing-paths/overview) - Detailed documentation of the three email paths
+- [Email Processing](email-processing-paths/overview) - Detailed documentation of the three email paths

@@ -4,7 +4,7 @@ title: Overview
 description: Overview of the three independent email processing paths in the ABM Service Docket Email Processor.
 ---
 
-# Email Processing Paths
+# Email Processing
 
 The EmailPrintABMService application processes completed actions through **three independent email routines** that run in parallel during each poll cycle. Each routine serves a different purpose and uses different database fields.
 
