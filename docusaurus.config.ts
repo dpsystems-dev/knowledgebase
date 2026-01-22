@@ -11,6 +11,12 @@ const config: Config = {
     v4: true,
   },
 
+  // Enable Mermaid diagrams
+  markdown: {
+    mermaid: true,
+  },
+  themes: ['@docusaurus/theme-mermaid'],
+
   // Cloudflare Pages deployment config
   // TODO: Update this URL after creating Cloudflare Pages project
   url: 'https://knowledgebase.pages.dev',
