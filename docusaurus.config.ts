@@ -160,6 +160,24 @@ const config: Config = {
       theme: prismThemes.github,
       darkTheme: prismThemes.dracula,
     },
+    algolia: {
+      // The application ID provided by Algolia
+      appId: 'YOUR_APP_ID',
+      // Public API key: safe to commit
+      apiKey: 'YOUR_SEARCH_ONLY_API_KEY',
+      indexName: 'knowledgebase',
+      // Enable contextual search (search within current doc version/language)
+      contextualSearch: true,
+      // Optional: path for search page that is enabled by default
+      searchPagePath: 'search',
+      // Optional: Enable Ask AI feature
+      insights: true,
+      // Uncomment below to enable Ask AI assistant
+      // askAi: {
+      //   assistantId: 'YOUR_ASK_AI_ASSISTANT_ID',
+      //   suggestedQuestions: true,
+      // },
+    },
   } satisfies Preset.ThemeConfig,
 };
 

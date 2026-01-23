@@ -1,0 +1,55 @@
+{
+  "index_name": "knowledgebase",
+  "sitemap_urls": ["https://dpsystems-dev.github.io/knowledgebase/sitemap.xml"],
+  "start_urls": [
+    {
+      "url": "https://dpsystems-dev.github.io/knowledgebase/docs/",
+      "tags": ["docs", "general"],
+      "variables": {
+        "version": ["current"]
+      }
+    },
+    {
+      "url": "https://dpsystems-dev.github.io/knowledgebase/abm-web-portal/",
+      "tags": ["docs", "abm-web-portal"],
+      "variables": {
+        "version": ["current"]
+      }
+    },
+    {
+      "url": "https://dpsystems-dev.github.io/knowledgebase/abm-service-docket-email-processor/",
+      "tags": ["docs", "docket-email-processor"],
+      "variables": {
+        "version": ["current"]
+      }
+    }
+  ],
+  "stop_urls": [
+    "/search",
+    "/search$"
+  ],
+  "selectors": {
+    "lvl0": {
+      "selector": "(//ul[contains(@class,'menu__list')]//a[contains(@class, 'menu__link menu__link--sublist menu__link--sublist-caret menu__link--active')]/text() | //nav[contains(@class, 'navbar')]//a[contains(@class, 'navbar__link--active')]/text())[last()]",
+      "type": "xpath",
+      "global": true,
+      "default_value": "Documentation"
+    },
+    "lvl1": "header h1, article h1",
+    "lvl2": "article h2",
+    "lvl3": "article h3",
+    "lvl4": "article h4",
+    "lvl5": "article h5, article td:first-child",
+    "lvl6": "article h6",
+    "text": "article p, article li, article td:last-child"
+  },
+  "custom_settings": {
+    "separatorsToIndex": "_",
+    "attributesForFaceting": ["language", "version", "type", "docusaurus_tag"],
+    "attributesToRetrieve": ["hierarchy", "content", "anchor", "url", "url_without_anchor", "type"]
+  },
+  "scrape_start_urls": false,
+  "strip_chars": " .,;:!?()[]{}'\"/\\",
+  "js_render": false,
+  "nb_hits": 0
+}
