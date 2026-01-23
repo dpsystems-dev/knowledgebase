@@ -165,9 +165,9 @@ const config: Config = {
       appId: '362W7XJN4W',
       // Public API key: safe to commit
       apiKey: '50f626020d75a31d6a07c56508fd96d9',
-      indexName: 'knowledgebase',
-      // Enable contextual search (search within current doc version/language)
-      contextualSearch: true,
+      indexName: 'dpsystems_kb',
+      // Disable contextual search to search all docs
+      contextualSearch: false,
       // Optional: path for search page that is enabled by default
       searchPagePath: 'search',
       // Optional: Enable Ask AI feature
