@@ -162,9 +162,9 @@ const config: Config = {
     },
     algolia: {
       // The application ID provided by Algolia
-      appId: 'YOUR_APP_ID',
+      appId: '362W7XJN4W',
       // Public API key: safe to commit
-      apiKey: 'YOUR_SEARCH_ONLY_API_KEY',
+      apiKey: '50f626020d75a31d6a07c56508fd96d9',
       indexName: 'knowledgebase',
       // Enable contextual search (search within current doc version/language)
       contextualSearch: true,

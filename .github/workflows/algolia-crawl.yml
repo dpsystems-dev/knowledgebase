@@ -17,14 +17,8 @@ jobs:
     # Only run if deploy was successful (or manual trigger)
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Run Algolia Crawler
-        uses: algolia/algoliasearch-crawler-github-actions@v1
-        with:
-          crawler-user-id: ${{ secrets.ALGOLIA_CRAWLER_USER_ID }}
-          crawler-api-key: ${{ secrets.ALGOLIA_CRAWLER_API_KEY }}
-          algolia-app-id: ${{ secrets.ALGOLIA_APP_ID }}
-          algolia-api-key: ${{ secrets.ALGOLIA_ADMIN_KEY }}
-          site-url: 'https://dpsystems-dev.github.io/knowledgebase/'
-          override-config: true
+      - name: Trigger Algolia Crawler
+        run: |
+          curl -X POST "https://crawler.algolia.com/api/1/crawlers/${{ secrets.ALGOLIA_CRAWLER_ID }}/reindex" \
+            -H "Authorization: Basic $(echo -n '${{ secrets.ALGOLIA_APP_ID }}:${{ secrets.ALGOLIA_ADMIN_KEY }}' | base64)" \
+            -H "Content-Type: application/json"
