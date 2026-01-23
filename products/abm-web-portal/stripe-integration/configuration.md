@@ -19,10 +19,11 @@ This guide explains how to configure Stripe payments for the ABM Service Web Por
 5. [Part 2: Creating a Webhook Endpoint](#part-2-creating-a-webhook-endpoint)
 6. [Part 3: Accessing the Configuration Page](#part-3-accessing-the-configuration-page)
 7. [Part 4: Configuring Stripe Settings](#part-4-configuring-stripe-settings)
-8. [Optional: Enable Automatic Email Receipts](#optional-enable-automatic-email-receipts)
-9. [Live Mode Setup](#live-mode-setup)
-10. [Testing Your Configuration](#testing-your-configuration)
-11. [Troubleshooting](#troubleshooting)
+8. [Part 5: Configuring User Access](#part-5-configuring-user-access)
+9. [Optional: Enable Automatic Email Receipts](#optional-enable-automatic-email-receipts)
+10. [Live Mode Setup](#live-mode-setup)
+11. [Testing Your Configuration](#testing-your-configuration)
+12. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -242,6 +243,53 @@ The Custom Routines section allows scheduling automated procedures related to St
 - Click the **trash icon** next to a procedure to remove it
 
 **Note:** Configuration changes take effect immediately after clicking Save. No server restart is required.
+
+---
+
+## Part 5: Configuring User Access
+
+After enabling Stripe in the App Configuration, you need to grant payment permissions to individual users. This controls who can view and create payments.
+
+### Access Control Flags
+
+| Flag | ABM Users | External Users |
+|------|-----------|----------------|
+| **View Payments** | Shows **PAYMENTS** tab on customer view | Shows **MY PAYMENTS** tab on customer view |
+| **Add Payments** | Enables **Request Payment** button | Enables **MAKE PAYMENT** button |
+
+### Setting Up User Permissions
+
+**1.** In the Admin Dashboard, navigate to **User Management**.
+
+![User Management page](./images/10-user-management.png)
+
+**2.** Click on the user you want to configure.
+
+**3.** Scroll down to the **User Access Control** section and find **Stripe Payments**.
+
+**4.** Enable the desired permissions:
+   - Check **View Payments** to allow the user to see payment history
+   - Check **Add Payments** to allow the user to initiate payments
+
+![User Access Control with Stripe Payments section](./images/11-user-access-control.png)
+
+**5.** Click **SAVE** to apply the changes.
+
+### Using Global Configuration Defaults
+
+To streamline user setup, you can configure default payment permissions in **Global Configuration**. These defaults are applied when creating new users.
+
+**1.** Navigate to **Global Configuration** in the Admin Dashboard.
+
+**2.** Scroll down to the **User Access Control** section and find **Stripe Payments**.
+
+**3.** Set the default values for **View Payments** and **Add Payments**.
+
+**4.** Click **Save**.
+
+**Applying Defaults to a User:**
+
+When editing a user in User Management, click the **COPY FROM DEFAULTS** button to copy all access control settings (including Stripe Payments) from the Global Configuration to that user.
 
 ---
 
