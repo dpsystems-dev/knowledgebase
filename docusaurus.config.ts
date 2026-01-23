@@ -37,6 +37,16 @@ const config: Config = {
     locales: ['en'],
   },
 
+  headTags: [
+    {
+      tagName: 'meta',
+      attributes: {
+        name: 'algolia-site-verification',
+        content: '782208010186C6D6',
+      },
+    },
+  ],
+
   plugins: [
     // ABM Web Portal docs plugin
     [
