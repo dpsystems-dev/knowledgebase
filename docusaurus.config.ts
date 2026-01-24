@@ -7,6 +7,10 @@ const config: Config = {
   tagline: 'Documentation for DP Systems products',
   favicon: 'img/favicon.svg',
 
+  customFields: {
+    docsGptApiKey: process.env.DOCSGPT_API_KEY || '',
+  },
+
   future: {
     v4: true,
   },
