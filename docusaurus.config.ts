@@ -170,12 +170,13 @@ const config: Config = {
       contextualSearch: false,
       // Optional: path for search page that is enabled by default
       searchPagePath: 'search',
-      // Enable analytics
+      // Optional: Enable Ask AI feature
       insights: true,
-      // Ask AI assistant
-      askAi: {
-        assistantId: 'Y1CmJh18vFGb',
-      },
+      // Uncomment below to enable Ask AI assistant
+      // askAi: {
+      //   assistantId: 'YOUR_ASK_AI_ASSISTANT_ID',
+      //   suggestedQuestions: true,
+      // },
     },
   } satisfies Preset.ThemeConfig,
 };
