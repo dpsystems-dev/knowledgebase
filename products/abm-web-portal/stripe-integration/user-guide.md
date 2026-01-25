@@ -6,6 +6,11 @@ description: How to use the Stripe payment feature in ABM Service Web Portal for
 
 # Stripe Payment Integration - User Guide
 
+<video controls width="100%">
+  <source src={require('./videos/MyComp.mp4').default + '#t=5.5'} type="video/mp4" />
+  Your browser does not support the video tag.
+</video>
+
 This guide explains how to use the payment feature in ABM Service Web Portal. The system supports two types of users with different payment workflows.
 
 ---
