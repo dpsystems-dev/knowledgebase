@@ -7,6 +7,10 @@ description: Step-by-step guide for first-time installation of the ABM Service W
 
 # Quick Start Guide
 
+<video controls width="100%">
+  <source src={require('./screenshots/quick-start-video.mp4').default} type="video/mp4" />
+</video>
+
 This guide walks you through installing the ABM Service Web Portal for the first time.
 
 ## Download the Deployer
