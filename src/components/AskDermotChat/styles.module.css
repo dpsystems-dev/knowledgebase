@@ -247,12 +247,207 @@
   border-radius: 16px 16px 16px 4px;
   font-size: 14px;
   line-height: 1.5;
-  white-space: pre-wrap;
 }
 
 [data-theme='dark'] .assistantMessage {
   background-color: #374151;
   color: #f3f4f6;
+}
+
+/* Markdown content styling */
+.assistantMessage p {
+  margin: 0 0 8px 0;
+}
+
+.assistantMessage p:last-child {
+  margin-bottom: 0;
+}
+
+.assistantMessage ul,
+.assistantMessage ol {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.assistantMessage li {
+  margin: 4px 0;
+}
+
+.assistantMessage code {
+  background-color: rgba(0, 0, 0, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+[data-theme='dark'] .assistantMessage code {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.assistantMessage pre {
+  background-color: rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 8px 0;
+}
+
+.assistantMessage pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+[data-theme='dark'] .assistantMessage pre {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.assistantMessage strong {
+  font-weight: 600;
+}
+
+.assistantMessage a {
+  color: var(--ifm-color-primary);
+  text-decoration: underline;
+}
+
+.assistantMessage h1,
+.assistantMessage h2,
+.assistantMessage h3,
+.assistantMessage h4 {
+  margin: 12px 0 8px 0;
+  font-weight: 600;
+}
+
+.assistantMessage h1 { font-size: 18px; }
+.assistantMessage h2 { font-size: 16px; }
+.assistantMessage h3 { font-size: 15px; }
+.assistantMessage h4 { font-size: 14px; }
+
+.assistantMessage blockquote {
+  border-left: 3px solid var(--ifm-color-primary);
+  padding-left: 12px;
+  margin: 8px 0;
+  color: #6b7280;
+}
+
+[data-theme='dark'] .assistantMessage blockquote {
+  color: #9ca3af;
+}
+
+/* Table styling */
+.assistantMessage table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 8px 0;
+  font-size: 13px;
+}
+
+.assistantMessage th,
+.assistantMessage td {
+  border: 1px solid #d1d5db;
+  padding: 6px 10px;
+  text-align: left;
+}
+
+.assistantMessage th {
+  background-color: rgba(0, 0, 0, 0.05);
+  font-weight: 600;
+}
+
+.assistantMessage tr:nth-child(even) {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+[data-theme='dark'] .assistantMessage th,
+[data-theme='dark'] .assistantMessage td {
+  border-color: #4b5563;
+}
+
+[data-theme='dark'] .assistantMessage th {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme='dark'] .assistantMessage tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* Mermaid diagram styling */
+.mermaidDiagram {
+  margin: 8px 0;
+  padding: 10px;
+  background-color: #ffffff;
+  border-radius: 6px;
+  overflow-x: auto;
+}
+
+.mermaidDiagram svg {
+  max-width: 100%;
+  height: auto;
+}
+
+[data-theme='dark'] .mermaidDiagram {
+  background-color: #2d3748;
+}
+
+/* Code block fallback for failed mermaid */
+.codeBlock {
+  background-color: rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 8px 0;
+  font-size: 13px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+[data-theme='dark'] .codeBlock {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Loading Indicator */
+.loadingIndicator {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 14px;
+  background-color: #f3f4f6;
+  border-radius: 16px 16px 16px 4px;
+}
+
+.loadingIndicator span {
+  width: 8px;
+  height: 8px;
+  background-color: #9ca3af;
+  border-radius: 50%;
+  animation: loadingBounce 1.4s infinite ease-in-out both;
+}
+
+.loadingIndicator span:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.loadingIndicator span:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes loadingBounce {
+  0%, 80%, 100% {
+    transform: scale(0.6);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+[data-theme='dark'] .loadingIndicator {
+  background-color: #374151;
+}
+
+[data-theme='dark'] .loadingIndicator span {
+  background-color: #6b7280;
 }
 
 /* Input Area */

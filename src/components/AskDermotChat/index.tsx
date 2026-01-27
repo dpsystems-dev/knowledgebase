@@ -1,5 +1,34 @@
 import React, { useState, useRef, useEffect, type ReactElement } from 'react';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import mermaid from 'mermaid';
 import styles from './styles.module.css';
+
+// Detect color mode from DOM attribute
+function useThemeFromDOM() {
+  const [colorMode, setColorMode] = useState<'light' | 'dark'>('light');
+
+  useEffect(() => {
+    const updateTheme = () => {
+      const theme = document.documentElement.getAttribute('data-theme');
+      setColorMode(theme === 'dark' ? 'dark' : 'light');
+    };
+
+    updateTheme();
+
+    // Watch for theme changes
+    const observer = new MutationObserver(updateTheme);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  return colorMode;
+}
 
 interface Message {
   role: 'user' | 'assistant';
@@ -11,20 +40,81 @@ const suggestions = [
   'What is ABM Service Docket?',
 ];
 
-const mockResponse = `To install ABM Web Portal, follow these steps:
+// Mermaid diagram component
+function MermaidDiagram({ code, colorMode }: { code: string; colorMode: string }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [svg, setSvg] = useState<string>('');
 
-1. Download the installer from the releases page
-2. Run the setup wizard and follow the prompts
-3. Configure your database connection
-4. Start the service and access the web interface
+  useEffect(() => {
+    const renderDiagram = async () => {
+      try {
+        // Initialize mermaid with the correct theme
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: colorMode === 'dark' ? 'dark' : 'default',
+          securityLevel: 'loose',
+        });
+        const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
+        const { svg } = await mermaid.render(id, code);
+        setSvg(svg);
+      } catch (error) {
+        console.error('Mermaid rendering error:', error);
+        setSvg('');
+      }
+    };
+    renderDiagram();
+  }, [code, colorMode]);
 
-For detailed instructions, check the ABM Web Portal installation guide.`;
+  if (!svg) {
+    return <pre className={styles.codeBlock}><code>{code}</code></pre>;
+  }
 
-export default function AskDermotChat(): ReactElement {
+  return (
+    <div
+      ref={containerRef}
+      className={styles.mermaidDiagram}
+      dangerouslySetInnerHTML={{ __html: svg }}
+    />
+  );
+}
+
+// Factory to create code block component with colorMode
+function createCodeBlock(colorMode: string) {
+  return function CodeBlock({ className, children, ...props }: React.HTMLAttributes<HTMLElement> & { children?: React.ReactNode }) {
+    const match = /language-(\w+)/.exec(className || '');
+    const language = match ? match[1] : '';
+    const code = String(children).replace(/\n$/, '');
+
+    if (language === 'mermaid') {
+      return <MermaidDiagram code={code} colorMode={colorMode} />;
+    }
+
+    return (
+      <code className={className} {...props}>
+        {children}
+      </code>
+    );
+  };
+}
+
+export default function AskDermotChat(): ReactElement | null {
+  const { siteConfig } = useDocusaurusContext();
+  const colorMode = useThemeFromDOM();
+  const apiKey = siteConfig.customFields?.docsGptApiKey as string;
+
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const threadRef = useRef<HTMLDivElement>(null);
+
+  // Create code block component with current color mode
+  const CodeBlock = createCodeBlock(colorMode);
+
+  // Hide widget if no API key configured
+  if (!apiKey) {
+    return null;
+  }
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -33,23 +123,32 @@ export default function AskDermotChat(): ReactElement {
     }
   }, [messages]);
 
-  const handleSend = (text?: string) => {
+  const handleSend = async (text?: string) => {
     const messageText = text || inputText.trim();
-    if (!messageText) return;
+    if (!messageText || isLoading) return;
 
     // Add user message
-    const userMessage: Message = { role: 'user', content: messageText };
-    setMessages((prev) => [...prev, userMessage]);
+    setMessages((prev) => [...prev, { role: 'user', content: messageText }]);
     setInputText('');
+    setIsLoading(true);
 
-    // Simulate assistant response (mock for now)
-    setTimeout(() => {
-      const assistantMessage: Message = {
+    try {
+      const response = await fetch('https://gptcloud.arc53.com/api/answer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: messageText, api_key: apiKey }),
+      });
+
+      const data = await response.json();
+      setMessages((prev) => [...prev, { role: 'assistant', content: data.answer }]);
+    } catch (error) {
+      setMessages((prev) => [...prev, {
         role: 'assistant',
-        content: mockResponse,
-      };
-      setMessages((prev) => [...prev, assistantMessage]);
-    }, 500);
+        content: 'Sorry, I encountered an error. Please try again.'
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -157,10 +256,33 @@ export default function AskDermotChat(): ReactElement {
                       message.role === 'user' ? styles.userMessage : styles.assistantMessage
                     }
                   >
-                    {message.content}
+                    {message.role === 'assistant' ? (
+                      <Markdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{ code: CodeBlock }}
+                      >
+                        {message.content}
+                      </Markdown>
+                    ) : (
+                      message.content
+                    )}
                   </div>
                 </div>
               ))}
+              {isLoading && (
+                <div className={`${styles.messageRow} ${styles.messageRowAssistant}`}>
+                  <img
+                    src="/knowledgebase/img/favicon.svg"
+                    alt="Dermot"
+                    className={styles.messageAvatar}
+                  />
+                  <div className={styles.loadingIndicator}>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -177,7 +299,7 @@ export default function AskDermotChat(): ReactElement {
             <button
               className={styles.sendButton}
               onClick={() => handleSend()}
-              disabled={!inputText.trim()}
+              disabled={!inputText.trim() || isLoading}
               aria-label="Send message"
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
