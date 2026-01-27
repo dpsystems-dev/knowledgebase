@@ -42,7 +42,6 @@ const suggestions = [
 
 // Mermaid diagram component
 function MermaidDiagram({ code, colorMode }: { code: string; colorMode: string }) {
-  const containerRef = useRef<HTMLDivElement>(null);
   const [svg, setSvg] = useState<string>('');
 
   useEffect(() => {
@@ -71,7 +70,6 @@ function MermaidDiagram({ code, colorMode }: { code: string; colorMode: string }
 
   return (
     <div
-      ref={containerRef}
       className={styles.mermaidDiagram}
       dangerouslySetInnerHTML={{ __html: svg }}
     />
@@ -111,17 +109,17 @@ export default function AskDermotChat(): ReactElement | null {
   // Create code block component with current color mode
   const CodeBlock = createCodeBlock(colorMode);
 
-  // Hide widget if no API key configured
-  if (!apiKey) {
-    return null;
-  }
-
   // Auto-scroll to bottom when messages change
   useEffect(() => {
     if (threadRef.current) {
       threadRef.current.scrollTop = threadRef.current.scrollHeight;
     }
   }, [messages]);
+
+  // Hide widget if no API key configured
+  if (!apiKey) {
+    return null;
+  }
 
   const handleSend = async (text?: string) => {
     const messageText = text || inputText.trim();
