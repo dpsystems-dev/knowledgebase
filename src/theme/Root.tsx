@@ -1,11 +1,11 @@
 import React from 'react';
-import DocsGPTChat from '@site/src/components/DocsGPTChat';
+import AskDermotChat from '@site/src/components/AskDermotChat';
 
 export default function Root({children}) {
   return (
     <>
       {children}
-      <DocsGPTChat />
+      <AskDermotChat />
     </>
   );
 }
