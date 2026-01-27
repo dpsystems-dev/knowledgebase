@@ -323,13 +323,14 @@
   cursor: not-allowed;
 }
 
-/* Responsive adjustments */
+/* Responsive adjustments - full screen on mobile */
 @media (max-width: 480px) {
   .modal {
-    width: calc(100vw - 32px);
-    height: calc(100vh - 120px);
-    bottom: 88px;
-    right: 16px;
+    width: 100vw;
+    height: 100vh;
+    bottom: 0;
+    right: 0;
+    border-radius: 0;
   }
 
   .fab {
