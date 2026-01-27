@@ -76,14 +76,18 @@ function MermaidDiagram({ code, colorMode }: { code: string; colorMode: string }
   );
 }
 
-// Factory to create code block component with colorMode
-function createCodeBlock(colorMode: string) {
+// Factory to create code block component with colorMode and streaming state
+function createCodeBlock(colorMode: string, isStreaming: boolean) {
   return function CodeBlock({ className, children, ...props }: React.HTMLAttributes<HTMLElement> & { children?: React.ReactNode }) {
     const match = /language-(\w+)/.exec(className || '');
     const language = match ? match[1] : '';
     const code = String(children).replace(/\n$/, '');
 
     if (language === 'mermaid') {
+      // Only render Mermaid when streaming is complete to avoid flickering
+      if (isStreaming) {
+        return <pre className={styles.codeBlock}><code>{code}</code></pre>;
+      }
       return <MermaidDiagram code={code} colorMode={colorMode} />;
     }
 
@@ -106,14 +110,28 @@ export default function AskDermotChat(): ReactElement | null {
   const [isLoading, setIsLoading] = useState(false);
   const threadRef = useRef<HTMLDivElement>(null);
 
-  // Create code block component with current color mode
-  const CodeBlock = createCodeBlock(colorMode);
+  // Create code block component with current color mode and streaming state
+  const CodeBlock = createCodeBlock(colorMode, isLoading);
 
-  // Auto-scroll to bottom when messages change
+  // Auto-scroll to bottom when content changes (handles streaming and async Mermaid rendering)
   useEffect(() => {
-    if (threadRef.current) {
-      threadRef.current.scrollTop = threadRef.current.scrollHeight;
-    }
+    const thread = threadRef.current;
+    if (!thread) return;
+
+    // Initial scroll
+    thread.scrollTop = thread.scrollHeight;
+
+    // Watch for content size changes (streaming text, Mermaid diagrams, etc.)
+    const resizeObserver = new ResizeObserver(() => {
+      thread.scrollTop = thread.scrollHeight;
+    });
+
+    // Observe all children for size changes
+    Array.from(thread.children).forEach((child) => {
+      resizeObserver.observe(child);
+    });
+
+    return () => resizeObserver.disconnect();
   }, [messages]);
 
   // Hide widget if no API key configured
@@ -125,25 +143,86 @@ export default function AskDermotChat(): ReactElement | null {
     const messageText = text || inputText.trim();
     if (!messageText || isLoading) return;
 
-    // Add user message
-    setMessages((prev) => [...prev, { role: 'user', content: messageText }]);
+    // Add user message and empty assistant message for streaming
+    setMessages((prev) => [
+      ...prev,
+      { role: 'user', content: messageText },
+      { role: 'assistant', content: '' },
+    ]);
     setInputText('');
     setIsLoading(true);
 
     try {
-      const response = await fetch('https://gptcloud.arc53.com/api/answer', {
+      const response = await fetch('https://gptcloud.arc53.com/stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: messageText, api_key: apiKey }),
+        body: JSON.stringify({
+          question: messageText,
+          api_key: apiKey,
+          history: JSON.stringify([{ prompt: messageText }]),
+          conversation_id: null,
+          model: 'default',
+        }),
       });
 
-      const data = await response.json();
-      setMessages((prev) => [...prev, { role: 'assistant', content: data.answer }]);
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let accumulatedAnswer = '';
+      let buffer = '';
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+
+          // Parse SSE events (format: "event: message\ndata: {...}\n\n")
+          // Keep the last line in buffer if it might be incomplete
+          const lastNewline = buffer.lastIndexOf('\n');
+          const complete = lastNewline >= 0 ? buffer.slice(0, lastNewline) : '';
+          buffer = lastNewline >= 0 ? buffer.slice(lastNewline + 1) : buffer;
+
+          for (const line of complete.split('\n')) {
+            if (!line.startsWith('data:')) continue;
+
+            const jsonStr = line.slice(5).trim();
+            if (!jsonStr) continue;
+
+            try {
+              const event = JSON.parse(jsonStr);
+
+              if (event.type === 'answer' && event.answer) {
+                accumulatedAnswer += event.answer;
+                setMessages((prev) => {
+                  const updated = [...prev];
+                  updated[updated.length - 1] = {
+                    role: 'assistant',
+                    content: accumulatedAnswer,
+                  };
+                  return updated;
+                });
+              } else if (event.type === 'error') {
+                throw new Error(event.error || 'Stream error');
+              } else if (event.type === 'end') {
+                break;
+              }
+              // Ignore: tool_call, tool_calls, source, id
+            } catch {
+              // Malformed JSON - skip this event
+            }
+          }
+        }
+      }
     } catch (error) {
-      setMessages((prev) => [...prev, {
-        role: 'assistant',
-        content: 'Sorry, I encountered an error. Please try again.'
-      }]);
+      setMessages((prev) => {
+        const updated = [...prev];
+        updated[updated.length - 1] = {
+          role: 'assistant',
+          content: 'Sorry, I encountered an error. Please try again.',
+        };
+        return updated;
+      });
     } finally {
       setIsLoading(false);
     }
@@ -235,52 +314,50 @@ export default function AskDermotChat(): ReactElement | null {
           ) : (
             /* Chat Thread */
             <div className={styles.thread} ref={threadRef}>
-              {messages.map((message, index) => (
-                <div
-                  key={index}
-                  className={`${styles.messageRow} ${
-                    message.role === 'user' ? styles.messageRowUser : styles.messageRowAssistant
-                  }`}
-                >
-                  {message.role === 'assistant' && (
-                    <img
-                      src="/knowledgebase/img/favicon.svg"
-                      alt="Dermot"
-                      className={styles.messageAvatar}
-                    />
-                  )}
+              {messages.map((message, index) => {
+                const isLastMessage = index === messages.length - 1;
+                const showLoadingInMessage =
+                  isLoading && isLastMessage && message.role === 'assistant' && !message.content;
+
+                return (
                   <div
-                    className={
-                      message.role === 'user' ? styles.userMessage : styles.assistantMessage
-                    }
+                    key={index}
+                    className={`${styles.messageRow} ${
+                      message.role === 'user' ? styles.messageRowUser : styles.messageRowAssistant
+                    }`}
                   >
-                    {message.role === 'assistant' ? (
-                      <Markdown
-                        remarkPlugins={[remarkGfm]}
-                        components={{ code: CodeBlock }}
-                      >
-                        {message.content}
-                      </Markdown>
-                    ) : (
-                      message.content
+                    {message.role === 'assistant' && (
+                      <img
+                        src="/knowledgebase/img/favicon.svg"
+                        alt="Dermot"
+                        className={styles.messageAvatar}
+                      />
                     )}
+                    <div
+                      className={
+                        message.role === 'user' ? styles.userMessage : styles.assistantMessage
+                      }
+                    >
+                      {showLoadingInMessage ? (
+                        <div className={styles.loadingIndicator}>
+                          <span></span>
+                          <span></span>
+                          <span></span>
+                        </div>
+                      ) : message.role === 'assistant' ? (
+                        <Markdown
+                          remarkPlugins={[remarkGfm]}
+                          components={{ code: CodeBlock }}
+                        >
+                          {message.content}
+                        </Markdown>
+                      ) : (
+                        message.content
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
-              {isLoading && (
-                <div className={`${styles.messageRow} ${styles.messageRowAssistant}`}>
-                  <img
-                    src="/knowledgebase/img/favicon.svg"
-                    alt="Dermot"
-                    className={styles.messageAvatar}
-                  />
-                  <div className={styles.loadingIndicator}>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </div>
-                </div>
-              )}
+                );
+              })}
             </div>
           )}
 
