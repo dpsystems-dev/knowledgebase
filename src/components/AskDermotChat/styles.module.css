@@ -97,6 +97,12 @@
   flex-grow: 1;
 }
 
+.headerButtons {
+  display: flex;
+  gap: 4px;
+}
+
+.expandButton,
 .closeButton {
   background: none;
   border: none;
@@ -110,6 +116,7 @@
   transition: opacity 0.2s;
 }
 
+.expandButton:hover,
 .closeButton:hover {
   opacity: 1;
 }
@@ -518,6 +525,18 @@
   cursor: not-allowed;
 }
 
+/* Expanded mode - centered and wider */
+.modalExpanded {
+  width: 800px;
+  height: 80vh;
+  max-height: 900px;
+  bottom: auto;
+  right: auto;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
 /* Responsive adjustments - full screen on mobile */
 @media (max-width: 480px) {
   .modal {
@@ -528,8 +547,26 @@
     border-radius: 0;
   }
 
+  .modalExpanded {
+    width: 100vw;
+    height: 100vh;
+    max-height: none;
+    top: 0;
+    left: 0;
+    transform: none;
+    border-radius: 0;
+  }
+
   .fab {
     bottom: 16px;
     right: 16px;
+  }
+}
+
+/* Medium screens - slightly smaller expanded mode */
+@media (min-width: 481px) and (max-width: 900px) {
+  .modalExpanded {
+    width: 90vw;
+    max-width: 700px;
   }
 }
