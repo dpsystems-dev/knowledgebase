@@ -151,6 +151,18 @@ export default function AskDermotChat(): ReactElement | null {
     return () => resizeObserver.disconnect();
   }, [messages]);
 
+  // Prevent body scroll when modal is open on mobile
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   // Hide widget if no API key configured
   if (!apiKey) {
     return null;
