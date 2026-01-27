@@ -42,9 +42,10 @@
   right: 24px;
   width: 400px;
   height: 700px;
-  background-color: #ffffff;
+  background-color: #e0e0e0;
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -65,7 +66,8 @@
 
 /* Dark mode support */
 [data-theme='dark'] .modal {
-  background-color: #1e1e1e;
+  background-color: #2a2a2a;
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 /* Header */
@@ -73,9 +75,13 @@
   display: flex;
   align-items: center;
   padding: 16px;
-  background-color: var(--ifm-color-primary);
+  background-color: #174f1b;
   color: white;
   gap: 12px;
+}
+
+[data-theme='dark'] .header {
+  background-color: #388e3c;
 }
 
 .headerIcon {
@@ -183,8 +189,8 @@
 
 .suggestionButton {
   padding: 12px 16px;
-  background-color: #f3f4f6;
-  border: 1px solid #e5e7eb;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
   border-radius: 8px;
   cursor: pointer;
   text-align: left;
@@ -194,18 +200,18 @@
 }
 
 .suggestionButton:hover {
-  background-color: #e5e7eb;
+  background-color: #f3f4f6;
   border-color: var(--ifm-color-primary);
 }
 
 [data-theme='dark'] .suggestionButton {
-  background-color: #374151;
+  background-color: #1e1e1e;
   border-color: #4b5563;
   color: #f3f4f6;
 }
 
 [data-theme='dark'] .suggestionButton:hover {
-  background-color: #4b5563;
+  background-color: #333333;
 }
 
 /* Chat Thread */
@@ -251,7 +257,7 @@
 .assistantMessage {
   flex: 1;
   padding: 10px 14px;
-  background-color: #f3f4f6;
+  background-color: #ffffff;
   color: #111827;
   border-radius: 16px 16px 16px 4px;
   font-size: 14px;
@@ -259,7 +265,7 @@
 }
 
 [data-theme='dark'] .assistantMessage {
-  background-color: #374151;
+  background-color: #1e1e1e;
   color: #f3f4f6;
 }
 
@@ -420,7 +426,7 @@
   align-items: center;
   gap: 4px;
   padding: 12px 14px;
-  background-color: #f3f4f6;
+  background-color: #ffffff;
   border-radius: 16px 16px 16px 4px;
 }
 
@@ -452,7 +458,7 @@
 }
 
 [data-theme='dark'] .loadingIndicator {
-  background-color: #374151;
+  background-color: #1e1e1e;
 }
 
 [data-theme='dark'] .loadingIndicator span {
@@ -464,13 +470,13 @@
   display: flex;
   gap: 8px;
   padding: 16px;
-  border-top: 1px solid #e5e7eb;
-  background-color: #ffffff;
+  border-top: 1px solid #c0c0c0;
+  background-color: #e0e0e0;
 }
 
 [data-theme='dark'] .inputArea {
-  border-top-color: #374151;
-  background-color: #1e1e1e;
+  border-top-color: #404040;
+  background-color: #2a2a2a;
 }
 
 .input {
@@ -481,6 +487,7 @@
   font-size: 14px;
   outline: none;
   transition: border-color 0.2s;
+  background-color: #ffffff;
 }
 
 .input:focus {
@@ -488,7 +495,7 @@
 }
 
 [data-theme='dark'] .input {
-  background-color: #374151;
+  background-color: #1e1e1e;
   border-color: #4b5563;
   color: #f3f4f6;
 }
