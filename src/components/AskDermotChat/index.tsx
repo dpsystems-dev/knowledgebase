@@ -40,6 +40,8 @@ const suggestions = [
   'What is ABM Service Docket?',
 ];
 
+const STORAGE_KEY = 'askDermotChatHistory';
+
 // Mermaid diagram component
 function MermaidDiagram({ code, colorMode }: { code: string; colorMode: string }) {
   const [svg, setSvg] = useState<string>('');
@@ -106,13 +108,26 @@ export default function AskDermotChat(): ReactElement | null {
 
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    if (typeof window === 'undefined') return [];
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : [];
+  });
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const threadRef = useRef<HTMLDivElement>(null);
 
   // Create code block component with current color mode and streaming state
   const CodeBlock = createCodeBlock(colorMode, isLoading);
+
+  // Persist messages to localStorage
+  useEffect(() => {
+    if (messages.length > 0) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+    } else {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  }, [messages]);
 
   // Auto-scroll to bottom when content changes (handles streaming and async Mermaid rendering)
   useEffect(() => {
@@ -139,6 +154,11 @@ export default function AskDermotChat(): ReactElement | null {
   if (!apiKey) {
     return null;
   }
+
+  const handleNewChat = () => {
+    setMessages([]);
+    localStorage.removeItem(STORAGE_KEY);
+  };
 
   const handleSend = async (text?: string) => {
     const messageText = text || inputText.trim();
@@ -276,6 +296,17 @@ export default function AskDermotChat(): ReactElement | null {
             <span className={styles.headerDot} />
             <span className={styles.headerTitle}>Ask Dermot</span>
             <div className={styles.headerButtons}>
+              {messages.length > 0 && (
+                <button
+                  className={styles.newChatButton}
+                  onClick={handleNewChat}
+                  aria-label="Start new chat"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M12 5v14M5 12h14" />
+                  </svg>
+                </button>
+              )}
               <button
                 className={styles.expandButton}
                 onClick={() => setIsExpanded(!isExpanded)}
