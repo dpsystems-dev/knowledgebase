@@ -178,47 +178,38 @@ export default function AskDermotChat(): ReactElement | null {
           buffer += decoder.decode(value, { stream: true });
 
           // Parse SSE events (format: "event: message\ndata: {...}\n\n")
-          const lines = buffer.split('\n');
-          buffer = ''; // Reset buffer, will add incomplete line back
+          // Keep the last line in buffer if it might be incomplete
+          const lastNewline = buffer.lastIndexOf('\n');
+          const complete = lastNewline >= 0 ? buffer.slice(0, lastNewline) : '';
+          buffer = lastNewline >= 0 ? buffer.slice(lastNewline + 1) : buffer;
 
-          for (let i = 0; i < lines.length; i++) {
-            const line = lines[i];
+          for (const line of complete.split('\n')) {
+            if (!line.startsWith('data:')) continue;
 
-            if (line.startsWith('data:')) {
-              const jsonStr = line.slice(5).trim();
-              if (jsonStr) {
-                try {
-                  const event = JSON.parse(jsonStr);
+            const jsonStr = line.slice(5).trim();
+            if (!jsonStr) continue;
 
-                  if (event.type === 'answer' && event.answer) {
-                    accumulatedAnswer += event.answer;
-                    setMessages((prev) => {
-                      const updated = [...prev];
-                      updated[updated.length - 1] = {
-                        role: 'assistant',
-                        content: accumulatedAnswer,
-                      };
-                      return updated;
-                    });
-                  } else if (event.type === 'error') {
-                    throw new Error(event.error || 'Stream error');
-                  } else if (event.type === 'end') {
-                    // Stream complete
-                    break;
-                  }
-                  // Ignore: tool_call, tool_calls, source, id
-                } catch (parseError) {
-                  // If JSON parse fails, might be incomplete - add back to buffer
-                  if (i === lines.length - 1) {
-                    buffer = line;
-                  }
-                }
+            try {
+              const event = JSON.parse(jsonStr);
+
+              if (event.type === 'answer' && event.answer) {
+                accumulatedAnswer += event.answer;
+                setMessages((prev) => {
+                  const updated = [...prev];
+                  updated[updated.length - 1] = {
+                    role: 'assistant',
+                    content: accumulatedAnswer,
+                  };
+                  return updated;
+                });
+              } else if (event.type === 'error') {
+                throw new Error(event.error || 'Stream error');
+              } else if (event.type === 'end') {
+                break;
               }
-            } else if (line !== '' && !line.startsWith('event:')) {
-              // Non-empty line that's not a data or event line - might be incomplete
-              if (i === lines.length - 1) {
-                buffer = line;
-              }
+              // Ignore: tool_call, tool_calls, source, id
+            } catch {
+              // Malformed JSON - skip this event
             }
           }
         }
