@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en" dir="ltr" class="docs-wrapper plugin-docs plugin-id-default docs-version-current docs-doc-page docs-doc-id-stripe-integration/user-guide" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.9.2">
+<title data-rh="true">User Guide | ABM Web Portal Documentation</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://dpsystems-dev.github.io/knowledgebase/img/docusaurus-social-card.jpg"><meta data-rh="true" name="twitter:image" content="https://dpsystems-dev.github.io/knowledgebase/img/docusaurus-social-card.jpg"><meta data-rh="true" property="og:url" content="https://dpsystems-dev.github.io/knowledgebase/stripe-integration/user-guide"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="User Guide | ABM Web Portal Documentation"><meta data-rh="true" name="description" content="How to use the Stripe payment feature in ABM Service Web Portal for both ABM users and external customers."><meta data-rh="true" property="og:description" content="How to use the Stripe payment feature in ABM Service Web Portal for both ABM users and external customers."><link data-rh="true" rel="icon" href="/knowledgebase/img/favicon.svg"><link data-rh="true" rel="canonical" href="https://dpsystems-dev.github.io/knowledgebase/stripe-integration/user-guide"><link data-rh="true" rel="alternate" href="https://dpsystems-dev.github.io/knowledgebase/stripe-integration/user-guide" hreflang="en"><link data-rh="true" rel="alternate" href="https://dpsystems-dev.github.io/knowledgebase/stripe-integration/user-guide" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Stripe Integration","item":"https://dpsystems-dev.github.io/knowledgebase/category/stripe-integration"},{"@type":"ListItem","position":2,"name":"User Guide","item":"https://dpsystems-dev.github.io/knowledgebase/stripe-integration/user-guide"}]}</script><link rel="stylesheet" href="/knowledgebase/assets/css/styles.3cdc18ff.css">
+<script src="/knowledgebase/assets/js/runtime~main.ab5b4e95.js" defer="defer"></script>
+<script src="/knowledgebase/assets/js/main.697df870.js" defer="defer"></script>
+</head>
+<body class="navigation-with-keyboard">
+<svg style="display: none;"><defs>
+<symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
+</defs></svg>
+<script>!function(){var t=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();document.documentElement.setAttribute("data-theme",t||(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")),document.documentElement.setAttribute("data-theme-choice",t||"system")}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><link rel="preload" as="image" href="/knowledgebase/img/logo.svg"><div role="region" aria-label="Skip to main content"><a class="skipToContent_fXgn" href="#__docusaurus_skipToContent_fallback">Skip to main content</a></div><nav aria-label="Main" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="Toggle navigation bar" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/knowledgebase/getting-started/initial-setup"><div class="navbar__logo"><img src="/knowledgebase/img/logo.svg" alt="ABM Web Portal Logo" class="themedComponent_mlkZ themedComponent--light_NVdE"><img src="/knowledgebase/img/logo.svg" alt="ABM Web Portal Logo" class="themedComponent_mlkZ themedComponent--dark_xIcU"></div><b class="navbar__title text--truncate">ABM Web Portal</b></a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/knowledgebase/description">Documentation</a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><div class="toggle_vylO colorModeToggle_DEke"><button class="clean-btn toggleButton_gllP toggleButtonDisabled_aARS" type="button" disabled="" title="system mode" aria-label="Switch between dark and light mode (currently system mode)"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP lightToggleIcon_pyhR"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP darkToggleIcon_wfgR"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP systemToggleIcon_QzmC"><path fill="currentColor" d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"></path></svg></button></div><div class="navbarSearchContainer_Bca1"></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_z2l0"><div class="docsWrapper_hBAB"><button aria-label="Scroll back to top" class="clean-btn theme-back-to-top-button backToTopButton_sjWU" type="button"></button><div class="docRoot_UBD9"><aside class="theme-doc-sidebar-container docSidebarContainer_YfHR"><div class="sidebarViewport_aRkj"><div class="sidebar_njMd"><nav aria-label="Docs sidebar" class="menu thin-scrollbar menu_SIkG"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link" href="/knowledgebase/description"><span title="Overview" class="linkLabel_WmDU">Overview</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/knowledgebase/installation/prerequisites"><span title="Installation" class="categoryLinkLabel_W154">Installation</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/knowledgebase/getting-started/initial-setup"><span title="Getting Started" class="categoryLinkLabel_W154">Getting Started</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--active" href="/knowledgebase/category/stripe-integration"><span title="Stripe Integration" class="categoryLinkLabel_W154">Stripe Integration</span></a><button aria-label="Collapse sidebar category &#x27;Stripe Integration&#x27;" aria-expanded="true" type="button" class="clean-btn menu__caret"></button></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link menu__link--active" aria-current="page" tabindex="0" href="/knowledgebase/stripe-integration/user-guide"><span title="User Guide" class="linkLabel_WmDU">User Guide</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/knowledgebase/stripe-integration/configuration"><span title="Configuration Guide" class="linkLabel_WmDU">Configuration Guide</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/knowledgebase/stripe-integration/developer-access"><span title="Developer Access Guide" class="linkLabel_WmDU">Developer Access Guide</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/knowledgebase/stripe-integration/production-checklist"><span title="Production Checklist" class="linkLabel_WmDU">Production Checklist</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/knowledgebase/stripe-integration/technical-support-guide"><span title="Technical Support Guide" class="linkLabel_WmDU">Technical Support Guide</span></a></li></ul></li></ul></nav></div></div></aside><main class="docMainContainer_TBSr"><div class="container padding-top--md padding-bottom--lg"><div class="row"><div class="col docItemCol_VOVn"><div class="docItemContainer_Djhp"><article><nav class="theme-doc-breadcrumbs breadcrumbsContainer_Z_bl" aria-label="Breadcrumbs"><ul class="breadcrumbs"><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/knowledgebase/category/stripe-integration"><span>Stripe Integration</span></a></li><li class="breadcrumbs__item breadcrumbs__item--active"><span class="breadcrumbs__link">User Guide</span></li></ul></nav><div class="tocCollapsible_ETCw theme-doc-toc-mobile tocMobile_ITEo"><button type="button" class="clean-btn tocCollapsibleButton_TO0P">On this page</button></div><div class="theme-doc-markdown markdown"><header><h1>Stripe Payment Integration - User Guide</h1></header>
+<video controls="" width="100%"><source src="/knowledgebase/assets/medias/MyComp-db18f8b5e3044b1aef3ee6866b18e1cc.mp4#t=5.5" type="video/mp4"><p>Your browser does not support the video tag.</p></video>
+<p>This guide explains how to use the payment feature in ABM Service Web Portal. The system supports two types of users with different payment workflows.</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="table-of-contents">Table of Contents<a href="#table-of-contents" class="hash-link" aria-label="Direct link to Table of Contents" title="Direct link to Table of Contents" translate="no">​</a></h2>
+<ol>
+<li class=""><a href="#section-1-abm-users---request-payment" class="">ABM Users - Request Payment</a></li>
+<li class=""><a href="#section-2-external-users---make-payment" class="">External Users - Make Payment</a></li>
+<li class=""><a href="#section-3-viewing-payments-in-stripe-dashboard" class="">Viewing Payments in Stripe Dashboard</a></li>
+<li class=""><a href="#payment-status-reference" class="">Payment Status Reference</a></li>
+</ol>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="section-1-abm-users---request-payment">Section 1: ABM Users - Request Payment<a href="#section-1-abm-users---request-payment" class="hash-link" aria-label="Direct link to Section 1: ABM Users - Request Payment" title="Direct link to Section 1: ABM Users - Request Payment" translate="no">​</a></h2>
+<p>ABM (internal) users can request payments from customers on their behalf. With the new payment flow, ABM users generate a payment link that customers can use to complete payment securely on their own device. This is ideal for phone-based customer service, email follow-ups, or in-person transactions where the customer prefers to use their own device.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="step-1-navigate-to-the-customer">Step 1: Navigate to the Customer<a href="#step-1-navigate-to-the-customer" class="hash-link" aria-label="Direct link to Step 1: Navigate to the Customer" title="Direct link to Step 1: Navigate to the Customer" translate="no">​</a></h3>
+<ol>
+<li class="">Log in to the ABM Service Web Portal with your ABM credentials</li>
+<li class="">Click on <strong>CUSTOMERS</strong> in the left navigation menu</li>
+<li class="">Search for and select the customer you want to process a payment for</li>
+</ol>
+<p><img decoding="async" loading="lazy" alt="ABM Customer View" src="/knowledgebase/assets/images/01-abm-customer-view-04b8944c28615c70245760b59159a3cd.png" width="1920" height="945" class="img_ev3q">
+<em>Customer details page showing the REQUEST PAYMENT button in the top right corner</em></p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="step-2-open-the-payment-dialog">Step 2: Open the Payment Dialog<a href="#step-2-open-the-payment-dialog" class="hash-link" aria-label="Direct link to Step 2: Open the Payment Dialog" title="Direct link to Step 2: Open the Payment Dialog" translate="no">​</a></h3>
+<p>Click the <strong>REQUEST PAYMENT</strong> button (purple button) in the top right corner of the customer page.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="step-3-enter-payment-details">Step 3: Enter Payment Details<a href="#step-3-enter-payment-details" class="hash-link" aria-label="Direct link to Step 3: Enter Payment Details" title="Direct link to Step 3: Enter Payment Details" translate="no">​</a></h3>
+<p>Fill in the payment information:</p>
+<ol>
+<li class=""><strong>Amount</strong>: Enter the payment amount (the currency is automatically set based on the customer&#x27;s account)</li>
+<li class=""><strong>Reference</strong>: Enter a reference for this payment (required) - for example, an invoice number like &quot;Invoice #123&quot;</li>
+</ol>
+<p>Click <strong>Send Payment Request</strong> to generate the payment link.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="step-4-share-the-payment-link">Step 4: Share the Payment Link<a href="#step-4-share-the-payment-link" class="hash-link" aria-label="Direct link to Step 4: Share the Payment Link" title="Direct link to Step 4: Share the Payment Link" translate="no">​</a></h3>
+<p>After submitting, the <strong>Payment Link Ready</strong> dialog appears with multiple options to share the payment link with the customer:</p>
+<p><img decoding="async" loading="lazy" alt="Payment Link Ready" src="/knowledgebase/assets/images/03-abm-payment-link-ready-59e866909bb9f58efd980300a95ca925.png" width="905" height="825" class="img_ev3q">
+<em>Payment Link Ready dialog showing QR code, payment amount, reference, and sharing options</em></p>
+<p>The dialog displays:</p>
+<ul>
+<li class=""><strong>QR Code</strong>: The customer can scan this with their phone camera to open the payment page</li>
+<li class=""><strong>Payment Amount</strong>: The amount and reference for verification</li>
+<li class=""><strong>Payment Link</strong>: A text field with the Stripe checkout URL and a copy button</li>
+<li class=""><strong>Share Button</strong>: Opens the device&#x27;s native share menu to send via SMS, email, or messaging apps</li>
+<li class=""><strong>Done Button</strong>: Proceeds to monitor the payment status</li>
+</ul>
+<p><strong>Options to share the payment link:</strong></p>
+<ol>
+<li class=""><strong>Show the QR Code</strong>: If the customer is present, they can scan the QR code with their phone</li>
+<li class=""><strong>Copy the Link</strong>: Click the copy button to copy the URL, then paste it into an email, chat, or SMS</li>
+<li class=""><strong>Use Native Share</strong>: Click the <strong>Share</strong> button to use your device&#x27;s share functionality</li>
+</ol>
+<p>Once the link is shared with the customer, click <strong>Done</strong> to proceed.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="step-5-wait-for-customer-payment">Step 5: Wait for Customer Payment<a href="#step-5-wait-for-customer-payment" class="hash-link" aria-label="Direct link to Step 5: Wait for Customer Payment" title="Direct link to Step 5: Wait for Customer Payment" translate="no">​</a></h3>
+<p>After clicking <strong>Done</strong>, a <strong>Payment Status</strong> dialog appears that monitors the payment in real-time:</p>
+<p><img decoding="async" loading="lazy" alt="Waiting for Payment" src="/knowledgebase/assets/images/04-abm-waiting-for-payment-ce7b8c2965b18cbb21d0be561fd44581.png" width="918" height="664" class="img_ev3q">
+<em>Payment Status dialog showing waiting state with payment details and polling indicator</em></p>
+<p>The dialog shows:</p>
+<ul>
+<li class=""><strong>Status indicator</strong>: A loading spinner while waiting</li>
+<li class=""><strong>Payment details</strong>: Amount, reference, and customer name</li>
+<li class=""><strong>Polling status</strong>: The system checks for payment completion every 8 seconds</li>
+<li class=""><strong>Stop Waiting button</strong>: Click to close the dialog and check status later</li>
+</ul>
+<p>You can leave this dialog open while the customer completes payment, or click <strong>Stop Waiting</strong> to close it. The payment status will update in the payments history regardless.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="step-6-payment-completed">Step 6: Payment Completed<a href="#step-6-payment-completed" class="hash-link" aria-label="Direct link to Step 6: Payment Completed" title="Direct link to Step 6: Payment Completed" translate="no">​</a></h3>
+<p>When the customer completes payment, the dialog automatically updates to show the confirmation:</p>
+<p><img decoding="async" loading="lazy" alt="Payment Completed" src="/knowledgebase/assets/images/05-abm-payment-completed-92cbde8dda4ec7ed8f3c385cc33f7458.png" width="909" height="609" class="img_ev3q">
+<em>Payment Status dialog showing successful payment completion</em></p>
+<p>The confirmation shows:</p>
+<ul>
+<li class="">A green checkmark indicating success</li>
+<li class=""><strong>Payment Completed!</strong> status</li>
+<li class="">The payment amount, reference, and customer name</li>
+</ul>
+<p>Click <strong>Close</strong> to return to the customer page. The payments grid will automatically refresh to show the new payment.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="customer-experience">Customer Experience<a href="#customer-experience" class="hash-link" aria-label="Direct link to Customer Experience" title="Direct link to Customer Experience" translate="no">​</a></h3>
+<p>When the customer opens the payment link (via QR code scan or direct link), they see the Stripe checkout page:</p>
+<p><img decoding="async" loading="lazy" alt="Customer Stripe Checkout" src="/knowledgebase/assets/images/06-customer-stripe-checkout-e286de273f3a67df83844df4ab64e4ae.png" width="379" height="704" class="img_ev3q">
+<em>Stripe checkout page as seen by the customer, showing payment details and card entry form</em></p>
+<p>The customer can:</p>
+<ul>
+<li class="">Use <strong>Continue with Link</strong> for faster checkout if they have a Stripe Link account</li>
+<li class="">Enter card details manually (card number, expiration, CVC, name, country)</li>
+<li class="">Click <strong>Pay</strong> to complete the payment</li>
+</ul>
+<p>After successful payment, the customer sees a confirmation page:</p>
+<p><img decoding="async" loading="lazy" alt="Customer Payment Success" src="/knowledgebase/assets/images/07-customer-payment-success-39739dc43197eeb4c29783b00a1760d6.png" width="606" height="752" class="img_ev3q">
+<em>Payment successful page shown to the customer after completing payment</em></p>
+<p>The customer can safely close this page after seeing the confirmation.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="step-7-view-payment-history">Step 7: View Payment History<a href="#step-7-view-payment-history" class="hash-link" aria-label="Direct link to Step 7: View Payment History" title="Direct link to Step 7: View Payment History" translate="no">​</a></h3>
+<p>Navigate to the <strong>PAYMENTS</strong> tab on the customer page to see all payment history for this customer.</p>
+<p><img decoding="async" loading="lazy" alt="Payments History Tab" src="/knowledgebase/assets/images/08-payments-history-tab-f890ad2248479e4ab86f32a123b0f59d.png" width="1920" height="945" class="img_ev3q">
+<em>PAYMENTS tab showing the completed payment with status, amount, and receipt link</em></p>
+<p>The payment history shows:</p>
+<ul>
+<li class=""><strong>Date</strong>: When the payment was made</li>
+<li class=""><strong>Reference</strong>: The payment reference you entered</li>
+<li class=""><strong>Amount</strong>: The payment amount and currency</li>
+<li class=""><strong>Status</strong>: Payment status (COMPLETED, PENDING, etc.)</li>
+<li class=""><strong>Created By</strong>: The email of the user who initiated the payment</li>
+<li class=""><strong>Receipt</strong>: Link to view the Stripe receipt</li>
+</ul>
+<p><strong>Tip</strong>: For pending payments, you can click &quot;Show Payment Link&quot; in the actions menu to display the QR code again if you need to re-share it with the customer.</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="section-2-external-users---make-payment">Section 2: External Users - Make Payment<a href="#section-2-external-users---make-payment" class="hash-link" aria-label="Direct link to Section 2: External Users - Make Payment" title="Direct link to Section 2: External Users - Make Payment" translate="no">​</a></h2>
+<p>External users (customers) can make payments directly from their customer portal. This allows customers to pay their invoices or make account payments at any time.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="step-1-navigate-to-your-company">Step 1: Navigate to Your Company<a href="#step-1-navigate-to-your-company" class="hash-link" aria-label="Direct link to Step 1: Navigate to Your Company" title="Direct link to Step 1: Navigate to Your Company" translate="no">​</a></h3>
+<ol>
+<li class="">Log in to the ABM Service Web Portal with your external user credentials</li>
+<li class="">Click on <strong>CUSTOMERS</strong> in the left navigation menu</li>
+<li class="">Select your company from the list</li>
+</ol>
+<p><img decoding="async" loading="lazy" alt="External Customer View" src="/knowledgebase/assets/images/09-external-customer-view-415a2a69c8e36a580e4d241f2f3cd70f.png" width="1920" height="945" class="img_ev3q">
+<em>External user view showing company details and the MAKE PAYMENT button</em></p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="step-2-open-the-payment-dialog-1">Step 2: Open the Payment Dialog<a href="#step-2-open-the-payment-dialog-1" class="hash-link" aria-label="Direct link to Step 2: Open the Payment Dialog" title="Direct link to Step 2: Open the Payment Dialog" translate="no">​</a></h3>
+<p>Click the <strong>MAKE PAYMENT</strong> button (green button) in the top right corner.</p>
+<p><img decoding="async" loading="lazy" alt="Make Payment Dialog" src="/knowledgebase/assets/images/10-external-make-payment-dialog-090fece05452d1d8d4fe19563c12fd8d.png" width="1920" height="945" class="img_ev3q">
+<em>Make a Payment dialog for external users</em></p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="step-3-enter-payment-details-1">Step 3: Enter Payment Details<a href="#step-3-enter-payment-details-1" class="hash-link" aria-label="Direct link to Step 3: Enter Payment Details" title="Direct link to Step 3: Enter Payment Details" translate="no">​</a></h3>
+<p>Fill in the payment information:</p>
+<ol>
+<li class=""><strong>Amount</strong>: Enter the amount you wish to pay</li>
+<li class=""><strong>Reference</strong>: Enter a reference for your records (required) - for example, an invoice number</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="step-4-proceed-to-payment">Step 4: Proceed to Payment<a href="#step-4-proceed-to-payment" class="hash-link" aria-label="Direct link to Step 4: Proceed to Payment" title="Direct link to Step 4: Proceed to Payment" translate="no">​</a></h3>
+<p>Click <strong>Proceed to Payment</strong>. You will be redirected to Stripe&#x27;s secure checkout page.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="step-5-complete-payment">Step 5: Complete Payment<a href="#step-5-complete-payment" class="hash-link" aria-label="Direct link to Step 5: Complete Payment" title="Direct link to Step 5: Complete Payment" translate="no">​</a></h3>
+<p>Enter your card details on the Stripe checkout page and click <strong>Pay</strong> to complete the payment.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="step-6-view-confirmation">Step 6: View Confirmation<a href="#step-6-view-confirmation" class="hash-link" aria-label="Direct link to Step 6: View Confirmation" title="Direct link to Step 6: View Confirmation" translate="no">​</a></h3>
+<p>After successful payment, you will see the confirmation page with payment details.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="step-7-view-payment-history-1">Step 7: View Payment History<a href="#step-7-view-payment-history-1" class="hash-link" aria-label="Direct link to Step 7: View Payment History" title="Direct link to Step 7: View Payment History" translate="no">​</a></h3>
+<p>Click <strong>Back</strong> to return to your company page, then navigate to the <strong>MY PAYMENTS</strong> tab to see your payment history.</p>
+<p><img decoding="async" loading="lazy" alt="My Payments Tab" src="/knowledgebase/assets/images/11-external-my-payments-tab-8ba45ae58f6ce104a77ed65352b367a6.png" width="1920" height="945" class="img_ev3q">
+<em>MY PAYMENTS tab showing payment history for external users</em></p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="section-3-viewing-payments-in-stripe-dashboard">Section 3: Viewing Payments in Stripe Dashboard<a href="#section-3-viewing-payments-in-stripe-dashboard" class="hash-link" aria-label="Direct link to Section 3: Viewing Payments in Stripe Dashboard" title="Direct link to Section 3: Viewing Payments in Stripe Dashboard" translate="no">​</a></h2>
+<p>Administrators can view all payment transactions in the Stripe Dashboard for reconciliation and reporting purposes.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="accessing-the-stripe-dashboard">Accessing the Stripe Dashboard<a href="#accessing-the-stripe-dashboard" class="hash-link" aria-label="Direct link to Accessing the Stripe Dashboard" title="Direct link to Accessing the Stripe Dashboard" translate="no">​</a></h3>
+<ol>
+<li class="">Log in to the Stripe Dashboard at <a href="https://dashboard.stripe.com" target="_blank" rel="noopener noreferrer" class="">dashboard.stripe.com</a></li>
+<li class="">Navigate to <strong>Transactions</strong> in the left menu</li>
+</ol>
+<p><img decoding="async" loading="lazy" alt="Stripe Payments List" src="/knowledgebase/assets/images/12-stripe-payments-list-212e52eeff55df2b52b710a380364b86.png" width="1920" height="945" class="img_ev3q">
+<em>Stripe Transactions page showing all payments</em></p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="viewing-payment-details">Viewing Payment Details<a href="#viewing-payment-details" class="hash-link" aria-label="Direct link to Viewing Payment Details" title="Direct link to Viewing Payment Details" translate="no">​</a></h3>
+<p>Click on any payment to view its details:</p>
+<p><img decoding="async" loading="lazy" alt="Stripe Payment Details" src="/knowledgebase/assets/images/13-stripe-payment-details-12677cf3a6066a3e3efb4b21c56b9932.png" width="1920" height="945" class="img_ev3q">
+<em>Payment details page showing transaction information</em></p>
+<p>The payment details page shows:</p>
+<ul>
+<li class="">Payment amount and status</li>
+<li class="">Customer information</li>
+<li class="">Checkout summary with line items</li>
+<li class="">Payment breakdown (fees, net amount)</li>
+<li class="">Payment method details</li>
+<li class="">Timeline of events</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="understanding-payment-metadata">Understanding Payment Metadata<a href="#understanding-payment-metadata" class="hash-link" aria-label="Direct link to Understanding Payment Metadata" title="Direct link to Understanding Payment Metadata" translate="no">​</a></h3>
+<p>Each payment includes metadata that links it back to the ABM Service Portal:</p>
+<p><img decoding="async" loading="lazy" alt="Stripe Payment Metadata" src="/knowledgebase/assets/images/14-stripe-payment-metadata-25b68a81ff6d1877546c55bb961eb7e5.png" width="1920" height="945" class="img_ev3q">
+<em>Metadata section showing portal-specific information</em></p>
+<p>The metadata includes:</p>
+<table><thead><tr><th>Field</th><th>Description</th></tr></thead><tbody><tr><td><strong>createdByEmail</strong></td><td>Email of the user who initiated the payment</td></tr><tr><td><strong>customerCode</strong></td><td>The customer code in the portal (e.g., &quot;000001&quot;)</td></tr><tr><td><strong>customerId</strong></td><td>The unique customer ID in the system</td></tr><tr><td><strong>customerName</strong></td><td>The customer&#x27;s name (e.g., &quot;Limited Energy&quot;)</td></tr><tr><td><strong>paymentId</strong></td><td>The internal payment ID in the portal</td></tr><tr><td><strong>reference</strong></td><td>The payment reference entered by the user</td></tr><tr><td><strong>sourceRole</strong></td><td>Who initiated the payment: &quot;abm&quot; (internal user) or &quot;external&quot; (customer)</td></tr></tbody></table>
+<p>This metadata makes it easy to:</p>
+<ul>
+<li class="">Track which portal user processed the payment</li>
+<li class="">Match payments to customer accounts</li>
+<li class="">Reconcile payments with invoices using the reference field</li>
+<li class="">Distinguish between internally-processed and customer-initiated payments</li>
+</ul>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="payment-status-reference">Payment Status Reference<a href="#payment-status-reference" class="hash-link" aria-label="Direct link to Payment Status Reference" title="Direct link to Payment Status Reference" translate="no">​</a></h2>
+<p>Payments in the portal can have the following statuses:</p>
+<table><thead><tr><th>Status</th><th>Color</th><th>Description</th></tr></thead><tbody><tr><td><strong>COMPLETED</strong></td><td>Green</td><td>Payment was successful</td></tr><tr><td><strong>PENDING</strong></td><td>Yellow</td><td>Payment is being processed</td></tr><tr><td><strong>CREATED</strong></td><td>Blue</td><td>Payment session created, awaiting completion</td></tr><tr><td><strong>FAILED</strong></td><td>Red</td><td>Payment failed (see failure reason)</td></tr><tr><td><strong>CANCELLED</strong></td><td>Red</td><td>Payment was cancelled by the user</td></tr><tr><td><strong>EXPIRED</strong></td><td>Grey</td><td>Payment session expired before completion</td></tr></tbody></table>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="need-help">Need Help?<a href="#need-help" class="hash-link" aria-label="Direct link to Need Help?" title="Direct link to Need Help?" translate="no">​</a></h2>
+<p>If you encounter any issues with payments:</p>
+<ol>
+<li class=""><strong>For ABM Users</strong>: Contact your system administrator</li>
+<li class=""><strong>For External Users</strong>: Contact your account manager at ABM</li>
+<li class=""><strong>For Payment Issues</strong>: Check the payment status in the PAYMENTS/MY PAYMENTS tab. If a payment shows as FAILED, you can try again with a new payment request.</li>
+</ol></div></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/knowledgebase/category/stripe-integration"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">Stripe Integration</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/knowledgebase/stripe-integration/configuration"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">Configuration Guide</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#table-of-contents" class="table-of-contents__link toc-highlight">Table of Contents</a></li><li><a href="#section-1-abm-users---request-payment" class="table-of-contents__link toc-highlight">Section 1: ABM Users - Request Payment</a><ul><li><a href="#step-1-navigate-to-the-customer" class="table-of-contents__link toc-highlight">Step 1: Navigate to the Customer</a></li><li><a href="#step-2-open-the-payment-dialog" class="table-of-contents__link toc-highlight">Step 2: Open the Payment Dialog</a></li><li><a href="#step-3-enter-payment-details" class="table-of-contents__link toc-highlight">Step 3: Enter Payment Details</a></li><li><a href="#step-4-share-the-payment-link" class="table-of-contents__link toc-highlight">Step 4: Share the Payment Link</a></li><li><a href="#step-5-wait-for-customer-payment" class="table-of-contents__link toc-highlight">Step 5: Wait for Customer Payment</a></li><li><a href="#step-6-payment-completed" class="table-of-contents__link toc-highlight">Step 6: Payment Completed</a></li><li><a href="#customer-experience" class="table-of-contents__link toc-highlight">Customer Experience</a></li><li><a href="#step-7-view-payment-history" class="table-of-contents__link toc-highlight">Step 7: View Payment History</a></li></ul></li><li><a href="#section-2-external-users---make-payment" class="table-of-contents__link toc-highlight">Section 2: External Users - Make Payment</a><ul><li><a href="#step-1-navigate-to-your-company" class="table-of-contents__link toc-highlight">Step 1: Navigate to Your Company</a></li><li><a href="#step-2-open-the-payment-dialog-1" class="table-of-contents__link toc-highlight">Step 2: Open the Payment Dialog</a></li><li><a href="#step-3-enter-payment-details-1" class="table-of-contents__link toc-highlight">Step 3: Enter Payment Details</a></li><li><a href="#step-4-proceed-to-payment" class="table-of-contents__link toc-highlight">Step 4: Proceed to Payment</a></li><li><a href="#step-5-complete-payment" class="table-of-contents__link toc-highlight">Step 5: Complete Payment</a></li><li><a href="#step-6-view-confirmation" class="table-of-contents__link toc-highlight">Step 6: View Confirmation</a></li><li><a href="#step-7-view-payment-history-1" class="table-of-contents__link toc-highlight">Step 7: View Payment History</a></li></ul></li><li><a href="#section-3-viewing-payments-in-stripe-dashboard" class="table-of-contents__link toc-highlight">Section 3: Viewing Payments in Stripe Dashboard</a><ul><li><a href="#accessing-the-stripe-dashboard" class="table-of-contents__link toc-highlight">Accessing the Stripe Dashboard</a></li><li><a href="#viewing-payment-details" class="table-of-contents__link toc-highlight">Viewing Payment Details</a></li><li><a href="#understanding-payment-metadata" class="table-of-contents__link toc-highlight">Understanding Payment Metadata</a></li></ul></li><li><a href="#payment-status-reference" class="table-of-contents__link toc-highlight">Payment Status Reference</a></li><li><a href="#need-help" class="table-of-contents__link toc-highlight">Need Help?</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Documentation</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/knowledgebase/getting-started/initial-setup">Getting Started</a></li><li class="footer__item"><a class="footer__link-item" href="/knowledgebase/installation/overview">Installation</a></li><li class="footer__item"><a class="footer__link-item" href="/knowledgebase/stripe-integration/developer-access">Stripe Integration</a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2026 DP Systems. Built with Docusaurus.</div></div></div></footer></div>
+</body>
+</html>

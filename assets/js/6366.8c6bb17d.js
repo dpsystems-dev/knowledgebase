@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkabm_web_portal_docs=globalThis.webpackChunkabm_web_portal_docs||[]).push([[6366],{6366(e,a,c){c.d(a,{createArchitectureServices:()=>b.S});var b=c(8980);c(7960)}}]);

@@ -1,6 +1,0 @@
-# Algolia-Crawler-Verif: 782208010186C6D6
-
-User-agent: *
-Allow: /
-
-Sitemap: https://dpsystems-dev.github.io/knowledgebase/sitemap.xml
