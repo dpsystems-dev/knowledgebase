@@ -76,14 +76,18 @@ function MermaidDiagram({ code, colorMode }: { code: string; colorMode: string }
   );
 }
 
-// Factory to create code block component with colorMode
-function createCodeBlock(colorMode: string) {
+// Factory to create code block component with colorMode and streaming state
+function createCodeBlock(colorMode: string, isStreaming: boolean) {
   return function CodeBlock({ className, children, ...props }: React.HTMLAttributes<HTMLElement> & { children?: React.ReactNode }) {
     const match = /language-(\w+)/.exec(className || '');
     const language = match ? match[1] : '';
     const code = String(children).replace(/\n$/, '');
 
     if (language === 'mermaid') {
+      // Only render Mermaid when streaming is complete to avoid flickering
+      if (isStreaming) {
+        return <pre className={styles.codeBlock}><code>{code}</code></pre>;
+      }
       return <MermaidDiagram code={code} colorMode={colorMode} />;
     }
 
@@ -106,14 +110,28 @@ export default function AskDermotChat(): ReactElement | null {
   const [isLoading, setIsLoading] = useState(false);
   const threadRef = useRef<HTMLDivElement>(null);
 
-  // Create code block component with current color mode
-  const CodeBlock = createCodeBlock(colorMode);
+  // Create code block component with current color mode and streaming state
+  const CodeBlock = createCodeBlock(colorMode, isLoading);
 
-  // Auto-scroll to bottom when messages change
+  // Auto-scroll to bottom when content changes (handles streaming and async Mermaid rendering)
   useEffect(() => {
-    if (threadRef.current) {
-      threadRef.current.scrollTop = threadRef.current.scrollHeight;
-    }
+    const thread = threadRef.current;
+    if (!thread) return;
+
+    // Initial scroll
+    thread.scrollTop = thread.scrollHeight;
+
+    // Watch for content size changes (streaming text, Mermaid diagrams, etc.)
+    const resizeObserver = new ResizeObserver(() => {
+      thread.scrollTop = thread.scrollHeight;
+    });
+
+    // Observe all children for size changes
+    Array.from(thread.children).forEach((child) => {
+      resizeObserver.observe(child);
+    });
+
+    return () => resizeObserver.disconnect();
   }, [messages]);
 
   // Hide widget if no API key configured
