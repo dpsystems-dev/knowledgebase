@@ -37,7 +37,8 @@ interface Message {
 
 const suggestions = [
   'How do I install ABM Web Portal?',
-  'What is ABM Service Docket?',
+  'How do I request payments as an ABM user?',
+  'How can customers make payments?',
 ];
 
 const STORAGE_KEY = 'askDermotChatHistory';
