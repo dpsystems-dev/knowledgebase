@@ -44,6 +44,24 @@ const suggestions = [
 const STORAGE_KEY = 'askDermotChatHistory';
 const CONVERSATION_ID_KEY = 'askDermotConversationId';
 
+// Build history array from messages for DocsGPT API fallback
+// Format: [{prompt: "user msg", response: "assistant msg"}, ...]
+function buildHistoryFromMessages(messages: Message[]): Array<{prompt: string; response: string}> {
+  const history: Array<{prompt: string; response: string}> = [];
+  for (let i = 0; i < messages.length - 1; i += 2) {
+    const userMsg = messages[i];
+    const assistantMsg = messages[i + 1];
+    // Only include complete pairs with content
+    if (userMsg?.role === 'user' && assistantMsg?.role === 'assistant' && assistantMsg.content) {
+      history.push({
+        prompt: userMsg.content,
+        response: assistantMsg.content,
+      });
+    }
+  }
+  return history;
+}
+
 // Mermaid diagram component
 function MermaidDiagram({ code, colorMode }: { code: string; colorMode: string }) {
   const [svg, setSvg] = useState<string>('');
@@ -205,14 +223,29 @@ export default function AskDermotChat(): ReactElement | null {
     setIsLoading(true);
 
     try {
+      // Build request body - use conversation_id if available, otherwise send history as fallback
+      const requestBody: Record<string, unknown> = {
+        question: messageText,
+        api_key: apiKey,
+      };
+
+      if (conversationId) {
+        // Server will load history from database
+        requestBody.conversation_id = conversationId;
+      } else if (messages.length > 0) {
+        // No conversation_id but we have local messages - send history as fallback
+        // Note: React state update is async, so `messages` here is the previous state
+        // (before the new user message was added)
+        const history = buildHistoryFromMessages(messages);
+        if (history.length > 0) {
+          requestBody.history = JSON.stringify(history);
+        }
+      }
+
       const response = await fetch('https://gptcloud.arc53.com/stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          question: messageText,
-          api_key: apiKey,
-          conversation_id: conversationId,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
@@ -262,6 +295,8 @@ export default function AskDermotChat(): ReactElement | null {
             } else if (event.type === 'id' && event.id) {
               setConversationId(event.id);
             } else if (event.type === 'error') {
+              // Clear stale conversation ID on error (e.g., conversation deleted on backend)
+              setConversationId(null);
               throw new Error(event.error || 'Stream error');
             } else if (event.type === 'end') {
               break;
@@ -272,6 +307,8 @@ export default function AskDermotChat(): ReactElement | null {
         }
       }
     } catch (error) {
+      // Clear stale conversation ID on error to allow fresh start
+      setConversationId(null);
       setMessages((prev) => {
         const updated = [...prev];
         updated[updated.length - 1] = {
