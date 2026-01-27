@@ -42,6 +42,7 @@ const suggestions = [
 ];
 
 const STORAGE_KEY = 'askDermotChatHistory';
+const CONVERSATION_ID_KEY = 'askDermotConversationId';
 
 // Mermaid diagram component
 function MermaidDiagram({ code, colorMode }: { code: string; colorMode: string }) {
@@ -56,7 +57,7 @@ function MermaidDiagram({ code, colorMode }: { code: string; colorMode: string }
           theme: colorMode === 'dark' ? 'dark' : 'default',
           securityLevel: 'loose',
         });
-        const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
+        const id = `mermaid-${Math.random().toString(36).substring(2, 11)}`;
         const { svg } = await mermaid.render(id, code);
         setSvg(svg);
       } catch (error) {
@@ -111,8 +112,16 @@ export default function AskDermotChat(): ReactElement | null {
   const [isExpanded, setIsExpanded] = useState(false);
   const [messages, setMessages] = useState<Message[]>(() => {
     if (typeof window === 'undefined') return [];
-    const saved = localStorage.getItem(STORAGE_KEY);
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [conversationId, setConversationId] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem(CONVERSATION_ID_KEY);
   });
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -129,6 +138,15 @@ export default function AskDermotChat(): ReactElement | null {
       localStorage.removeItem(STORAGE_KEY);
     }
   }, [messages]);
+
+  // Persist conversation ID to localStorage
+  useEffect(() => {
+    if (conversationId) {
+      localStorage.setItem(CONVERSATION_ID_KEY, conversationId);
+    } else {
+      localStorage.removeItem(CONVERSATION_ID_KEY);
+    }
+  }, [conversationId]);
 
   // Auto-scroll to bottom when content changes (handles streaming and async Mermaid rendering)
   useEffect(() => {
@@ -170,7 +188,7 @@ export default function AskDermotChat(): ReactElement | null {
 
   const handleNewChat = () => {
     setMessages([]);
-    localStorage.removeItem(STORAGE_KEY);
+    setConversationId(null);
   };
 
   const handleSend = async (text?: string) => {
@@ -193,58 +211,63 @@ export default function AskDermotChat(): ReactElement | null {
         body: JSON.stringify({
           question: messageText,
           api_key: apiKey,
-          history: JSON.stringify([{ prompt: messageText }]),
-          conversation_id: null,
-          model: 'default',
+          conversation_id: conversationId,
         }),
       });
 
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+
       const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error('No response body');
+      }
+
       const decoder = new TextDecoder();
       let accumulatedAnswer = '';
       let buffer = '';
 
-      if (reader) {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-          buffer += decoder.decode(value, { stream: true });
+        buffer += decoder.decode(value, { stream: true });
 
-          // Parse SSE events (format: "event: message\ndata: {...}\n\n")
-          // Keep the last line in buffer if it might be incomplete
-          const lastNewline = buffer.lastIndexOf('\n');
-          const complete = lastNewline >= 0 ? buffer.slice(0, lastNewline) : '';
-          buffer = lastNewline >= 0 ? buffer.slice(lastNewline + 1) : buffer;
+        // Parse SSE events (format: "event: message\ndata: {...}\n\n")
+        // Keep the last line in buffer if it might be incomplete
+        const lastNewline = buffer.lastIndexOf('\n');
+        const complete = lastNewline >= 0 ? buffer.slice(0, lastNewline) : '';
+        buffer = lastNewline >= 0 ? buffer.slice(lastNewline + 1) : buffer;
 
-          for (const line of complete.split('\n')) {
-            if (!line.startsWith('data:')) continue;
+        for (const line of complete.split('\n')) {
+          if (!line.startsWith('data:')) continue;
 
-            const jsonStr = line.slice(5).trim();
-            if (!jsonStr) continue;
+          const jsonStr = line.slice(5).trim();
+          if (!jsonStr) continue;
 
-            try {
-              const event = JSON.parse(jsonStr);
+          try {
+            const event = JSON.parse(jsonStr);
 
-              if (event.type === 'answer' && event.answer) {
-                accumulatedAnswer += event.answer;
-                setMessages((prev) => {
-                  const updated = [...prev];
-                  updated[updated.length - 1] = {
-                    role: 'assistant',
-                    content: accumulatedAnswer,
-                  };
-                  return updated;
-                });
-              } else if (event.type === 'error') {
-                throw new Error(event.error || 'Stream error');
-              } else if (event.type === 'end') {
-                break;
-              }
-              // Ignore: tool_call, tool_calls, source, id
-            } catch {
-              // Malformed JSON - skip this event
+            if (event.type === 'answer' && event.answer) {
+              accumulatedAnswer += event.answer;
+              setMessages((prev) => {
+                const updated = [...prev];
+                updated[updated.length - 1] = {
+                  role: 'assistant',
+                  content: accumulatedAnswer,
+                };
+                return updated;
+              });
+            } else if (event.type === 'id' && event.id) {
+              setConversationId(event.id);
+            } else if (event.type === 'error') {
+              throw new Error(event.error || 'Stream error');
+            } else if (event.type === 'end') {
+              break;
             }
+          } catch {
+            // Malformed JSON - skip this event
           }
         }
       }
