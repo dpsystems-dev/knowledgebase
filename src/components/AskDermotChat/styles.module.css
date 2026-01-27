@@ -84,17 +84,15 @@
   background-color: #388e3c;
 }
 
-.headerIcon {
-  width: 20px;
-  height: 20px;
-  opacity: 0.9;
-}
-
 .headerDot {
   width: 10px;
   height: 10px;
   background-color: #4caf50;
   border-radius: 50%;
+}
+
+[data-theme='dark'] .headerDot {
+  background-color: #a5d6a7;
 }
 
 .headerTitle {

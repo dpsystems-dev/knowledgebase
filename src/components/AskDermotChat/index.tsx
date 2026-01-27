@@ -290,9 +290,6 @@ export default function AskDermotChat(): ReactElement | null {
         <div className={`${styles.modal} ${isExpanded ? styles.modalExpanded : ''}`}>
           {/* Header */}
           <div className={styles.header}>
-            <svg className={styles.headerIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
             <span className={styles.headerDot} />
             <span className={styles.headerTitle}>Ask Dermot</span>
             <div className={styles.headerButtons}>
