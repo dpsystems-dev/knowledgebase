@@ -125,25 +125,95 @@ export default function AskDermotChat(): ReactElement | null {
     const messageText = text || inputText.trim();
     if (!messageText || isLoading) return;
 
-    // Add user message
-    setMessages((prev) => [...prev, { role: 'user', content: messageText }]);
+    // Add user message and empty assistant message for streaming
+    setMessages((prev) => [
+      ...prev,
+      { role: 'user', content: messageText },
+      { role: 'assistant', content: '' },
+    ]);
     setInputText('');
     setIsLoading(true);
 
     try {
-      const response = await fetch('https://gptcloud.arc53.com/api/answer', {
+      const response = await fetch('https://gptcloud.arc53.com/stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: messageText, api_key: apiKey }),
+        body: JSON.stringify({
+          question: messageText,
+          api_key: apiKey,
+          history: JSON.stringify([{ prompt: messageText }]),
+          conversation_id: null,
+          model: 'default',
+        }),
       });
 
-      const data = await response.json();
-      setMessages((prev) => [...prev, { role: 'assistant', content: data.answer }]);
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let accumulatedAnswer = '';
+      let buffer = '';
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+
+          // Parse SSE events (format: "event: message\ndata: {...}\n\n")
+          const lines = buffer.split('\n');
+          buffer = ''; // Reset buffer, will add incomplete line back
+
+          for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+
+            if (line.startsWith('data:')) {
+              const jsonStr = line.slice(5).trim();
+              if (jsonStr) {
+                try {
+                  const event = JSON.parse(jsonStr);
+
+                  if (event.type === 'answer' && event.answer) {
+                    accumulatedAnswer += event.answer;
+                    setMessages((prev) => {
+                      const updated = [...prev];
+                      updated[updated.length - 1] = {
+                        role: 'assistant',
+                        content: accumulatedAnswer,
+                      };
+                      return updated;
+                    });
+                  } else if (event.type === 'error') {
+                    throw new Error(event.error || 'Stream error');
+                  } else if (event.type === 'end') {
+                    // Stream complete
+                    break;
+                  }
+                  // Ignore: tool_call, tool_calls, source, id
+                } catch (parseError) {
+                  // If JSON parse fails, might be incomplete - add back to buffer
+                  if (i === lines.length - 1) {
+                    buffer = line;
+                  }
+                }
+              }
+            } else if (line !== '' && !line.startsWith('event:')) {
+              // Non-empty line that's not a data or event line - might be incomplete
+              if (i === lines.length - 1) {
+                buffer = line;
+              }
+            }
+          }
+        }
+      }
     } catch (error) {
-      setMessages((prev) => [...prev, {
-        role: 'assistant',
-        content: 'Sorry, I encountered an error. Please try again.'
-      }]);
+      setMessages((prev) => {
+        const updated = [...prev];
+        updated[updated.length - 1] = {
+          role: 'assistant',
+          content: 'Sorry, I encountered an error. Please try again.',
+        };
+        return updated;
+      });
     } finally {
       setIsLoading(false);
     }
@@ -235,52 +305,50 @@ export default function AskDermotChat(): ReactElement | null {
           ) : (
             /* Chat Thread */
             <div className={styles.thread} ref={threadRef}>
-              {messages.map((message, index) => (
-                <div
-                  key={index}
-                  className={`${styles.messageRow} ${
-                    message.role === 'user' ? styles.messageRowUser : styles.messageRowAssistant
-                  }`}
-                >
-                  {message.role === 'assistant' && (
-                    <img
-                      src="/knowledgebase/img/favicon.svg"
-                      alt="Dermot"
-                      className={styles.messageAvatar}
-                    />
-                  )}
+              {messages.map((message, index) => {
+                const isLastMessage = index === messages.length - 1;
+                const showLoadingInMessage =
+                  isLoading && isLastMessage && message.role === 'assistant' && !message.content;
+
+                return (
                   <div
-                    className={
-                      message.role === 'user' ? styles.userMessage : styles.assistantMessage
-                    }
+                    key={index}
+                    className={`${styles.messageRow} ${
+                      message.role === 'user' ? styles.messageRowUser : styles.messageRowAssistant
+                    }`}
                   >
-                    {message.role === 'assistant' ? (
-                      <Markdown
-                        remarkPlugins={[remarkGfm]}
-                        components={{ code: CodeBlock }}
-                      >
-                        {message.content}
-                      </Markdown>
-                    ) : (
-                      message.content
+                    {message.role === 'assistant' && (
+                      <img
+                        src="/knowledgebase/img/favicon.svg"
+                        alt="Dermot"
+                        className={styles.messageAvatar}
+                      />
                     )}
+                    <div
+                      className={
+                        message.role === 'user' ? styles.userMessage : styles.assistantMessage
+                      }
+                    >
+                      {showLoadingInMessage ? (
+                        <div className={styles.loadingIndicator}>
+                          <span></span>
+                          <span></span>
+                          <span></span>
+                        </div>
+                      ) : message.role === 'assistant' ? (
+                        <Markdown
+                          remarkPlugins={[remarkGfm]}
+                          components={{ code: CodeBlock }}
+                        >
+                          {message.content}
+                        </Markdown>
+                      ) : (
+                        message.content
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
-              {isLoading && (
-                <div className={`${styles.messageRow} ${styles.messageRowAssistant}`}>
-                  <img
-                    src="/knowledgebase/img/favicon.svg"
-                    alt="Dermot"
-                    className={styles.messageAvatar}
-                  />
-                  <div className={styles.loadingIndicator}>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </div>
-                </div>
-              )}
+                );
+              })}
             </div>
           )}
 
